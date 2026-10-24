@@ -1,0 +1,45 @@
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="ink-duo" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values=".2126 .7152 .0722 0 0  .2126 .7152 .0722 0 0  .2126 .7152 .0722 0 0  0 0 0 1 0"/>
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="1.22" intercept="-.08"/>
+        <feFuncG type="linear" slope="1.22" intercept="-.08"/>
+        <feFuncB type="linear" slope="1.22" intercept="-.08"/>
+      </feComponentTransfer>
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues=".055 .137 .58 1"/>
+        <feFuncG type="table" tableValues=".071 .216 .64 1"/>
+        <feFuncB type="table" tableValues=".125 .776 .95 1"/>
+      </feComponentTransfer>
+    </filter>
+    <filter id="ink" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="3" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="11" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.4 0 0 0 2.08" result="mask"/>
+      <feComposite in="rough" in2="mask" operator="in"/>
+    </filter>
+    <filter id="ink-s" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="9" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="1.6" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="2" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2 0 0 0 1.95" result="mask"/>
+      <feComposite in="rough" in2="mask" operator="in"/>
+    </filter>
+    <!-- Знак «Инком-Аудит» одним цветом (для оттиска печати) -->
+    <symbol id="mark-mono" viewBox="0 0 120 120">
+      <path fill="currentColor" d="M37 6.75A58 58 0 0 0 37 113.25Z"/>
+      <path fill="currentColor" d="M68 117.45V77A37 37 0 0 0 90.75 10.82A58 58 0 0 1 68 117.45Z"/>
+    </symbol>
+    <path id="ring-mini" d="M60,60 m-39,0 a39,39 0 1,1 78,0 a39,39 0 1,1 -78,0"/>
+    <symbol id="seal-mini" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width="4"/>
+      <circle cx="60" cy="60" r="50.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <text font-family="Unbounded, 'Arial Black', sans-serif" font-weight="600" font-size="7.2" fill="currentColor"><textPath href="#ring-mini" textLength="241" lengthAdjust="spacingAndGlyphs">ИНКОМ-АУДИТ • ОРНЗ 12006082980 • С 2010 •</textPath></text>
+      <circle cx="60" cy="60" r="34" fill="none" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M33 51.5h54M33 68.5h54" stroke="currentColor" stroke-width="1"/>
+      <text x="60" y="63.2" text-anchor="middle" font-family="Unbounded, 'Arial Black', sans-serif" font-weight="800" font-size="8.6" textLength="56" lengthAdjust="spacingAndGlyphs" fill="currentColor">ПРОВЕРЕНО</text>
+    </symbol>
+  </defs>
+</svg>
