@@ -1,0 +1,6 @@
+# Макет закрыт от индексации. На боевом сайте заменить «Disallow: /» на «Allow: /»
+# и собрать сайт с флагом --index (убирает <meta name="robots" content="noindex">).
+User-agent: *
+Disallow: /
+
+Sitemap: https://greenorangeptftm.github.io/incom-audit/sitemap.xml

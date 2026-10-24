@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""Сборщик полного сайта «Инком-Аудит» (дизайн «Печать», SEO-версия).
+"""Сборщик полного сайта «Инком-Аудит» (SEO-версия).
 
-Читает модули страниц из full-src/pages/*.py (каждый экспортирует словарь PAGE,
-формат описан в full-src/CONTRACT.md) и пишет готовый статический сайт в site/full/.
+Читает модули страниц из src/pages/*.py (каждый экспортирует словарь PAGE, формат описан
+в src/CONTRACT.md) и пишет готовый статический сайт.
 
-Запуск из корня репозитория:  python3 -I full-src/build.py
+Темы: «pechat» (синие чернила, по умолчанию, вывод в ../site/full/) и «sverka» (петроль + оранжевый,
+отдельный сайт). Примеры запуска из папки incom-audit/:
+
+    python3 -I src/build.py                              # тема pechat, как раньше
+    python3 -I src/build.py --theme sverka --out docs \
+        --site-url https://greenorangeptftm.github.io/incom-audit --noindex
 """
+import argparse
 import datetime
+import importlib
 import importlib.util
 import re
 import shutil
@@ -14,17 +21,9 @@ import struct
 import sys
 from pathlib import Path
 
-SITE_URL = "https://greenorangeptftm.github.io/incom-redesign/full"
-NOINDEX = True  # макет закрыт от индексации; на боевом сайте поставить False и открыть robots.txt
-
-ROOT = Path(__file__).resolve().parent.parent  # incom-redesign/
-SRC = ROOT / "full-src"
-OUT = ROOT / "site" / "full"
-PHOTOS_DIR = ROOT / "site" / "assets" / "photos"
-ASSETS_URL = SITE_URL.rsplit("/", 1)[0] + "/assets/"
-
-sys.path.insert(0, str(SRC))
-import templates  # noqa: E402
+SRC = Path(__file__).resolve().parent            # incom-audit/src
+ROOT = SRC.parent                                # incom-audit/
+DEFAULT_PHOTOS = (ROOT.parent / "incom-redesign" / "site" / "assets" / "photos")
 
 KINDS = {"home", "hub", "service", "page", "article", "blog", "contacts", "order"}
 SECTION_TYPES = {"prose", "facts", "steps", "cards", "table", "checklist", "checker",
@@ -51,12 +50,12 @@ def jpeg_size(path):
     raise ValueError("не удалось прочитать размер %s" % path)
 
 
-def load_photos():
+def load_photos(photos_dir):
     photos = {}
-    for p in sorted(PHOTOS_DIR.glob("*.jpg")):
+    for p in sorted(photos_dir.glob("*.jpg")):
         if p.stem.endswith("-900"):
             continue
-        small = PHOTOS_DIR / (p.stem + "-900.jpg")
+        small = photos_dir / (p.stem + "-900.jpg")
         w, h = jpeg_size(p)
         sw, sh = jpeg_size(small) if small.exists() else (w, h)
         photos[p.stem] = dict(w=w, h=h, sw=sw, sh=sh, small=small.exists())
@@ -122,9 +121,7 @@ def validate(page):
         for key in ("date", "excerpt"):
             if not isinstance(page.get(key), str):
                 p.append("для статьи нужна строка %r" % key)
-    if kind == "service" and not (isinstance(page.get("schema"), dict) and page["schema"].get("service")):
-        p.append("предупреждение: для kind=service желателен schema=dict(service=…)")
-    return [x for x in p if not x.startswith("предупреждение")] + []
+    return p
 
 
 def warnings_for(page):
@@ -147,10 +144,12 @@ def rel_root(path):
 
 def rewrite_links(html, root):
     # href="/audit/" → href="../audit/" по глубине страницы; протокольные "//" не трогаем
-    return re.sub(r'((?:href|src|action|poster)=")/(?!/)', lambda m: m.group(1) + root, html)
+    return re.sub(r'((?:href|src|action|poster|imagesrcset)=")/(?!/)', lambda m: m.group(1) + root, html)
 
 
-def expand_photos(html, ctx):
+def expand_photos(html, ctx, templates):
+    cls = getattr(templates, "PROSE_PHOTO_CLS", "duo prose-photo")
+
     def repl(m):
         attrs = m.group(1)
         key = re.search(r'data-photo="([^"]+)"', attrs).group(1)
@@ -158,44 +157,63 @@ def expand_photos(html, ctx):
         alt = alt_m.group(1) if alt_m else ""
         cap_m = re.search(r'data-caption="([^"]*)"', attrs)
         cap = cap_m.group(1) if cap_m else ""
-        return templates.figure(ctx, key, alt, cls="duo prose-photo", sizes="(max-width: 900px) 100vw, 800px", caption=cap)
+        return templates.figure(ctx, key, alt, cls=cls, sizes="(max-width: 900px) 100vw, 800px", caption=cap)
     return re.sub(r'<img\b([^>]*\bdata-photo="[^"]+"[^>]*)>', repl, html)
 
 
-def build():
-    photos = load_photos()
+def clean_dir(out):
+    if out.exists():
+        for child in out.iterdir():
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
+    out.mkdir(parents=True, exist_ok=True)
+
+
+def build(theme, out, site_url, photos_dir, noindex):
+    sys.path.insert(0, str(SRC))
+    templates = importlib.import_module("templates" if theme == "pechat" else "templates_" + theme)
+    assets_src = SRC / ("assets" if theme == "pechat" else "assets-" + theme)
+    standalone = theme != "pechat"   # отдельный сайт: фото и логотипы лежат внутри out/assets/
+
+    photos = load_photos(photos_dir)
     pages, errors = load_pages()
     today = datetime.date.today().isoformat()
     by_path = {p["path"]: p for p in pages}
     articles = sorted([p for p in pages if p["kind"] == "article"], key=lambda p: p.get("date", ""), reverse=True)
 
-    if OUT.exists():
-        for child in OUT.iterdir():
-            if child.is_dir():
-                shutil.rmtree(child)
-            else:
-                child.unlink()
-    (OUT / "assets").mkdir(parents=True, exist_ok=True)
-    for f in (SRC / "assets").iterdir():
+    clean_dir(out)
+    (out / "assets").mkdir(parents=True, exist_ok=True)
+    for f in assets_src.iterdir():
         if f.is_file() and not f.name.startswith("_"):
-            shutil.copy2(f, OUT / "assets" / f.name)
+            shutil.copy2(f, out / "assets" / f.name)
 
-    defs_svg = (SRC / "assets" / "_defs.svg").read_text(encoding="utf-8")
-    warns = []
+    defs_path = assets_src / "_defs.svg"
+    defs_svg = defs_path.read_text(encoding="utf-8") if defs_path.exists() else ""
+    if standalone:
+        assets_url = site_url + "/assets/"
+        photo_rel = "assets/photos/"
+    else:
+        assets_url = site_url.rsplit("/", 1)[0] + "/assets/"
+        photo_rel = "../assets/photos/"
+
+    warns, used_photos = [], set()
     for page in pages:
         root = rel_root(page["path"])
-        ctx = dict(site_url=SITE_URL, assets_url=ASSETS_URL, noindex=NOINDEX, root=root,
-                   photo_prefix=root + "../assets/photos/", photos=photos, pages=pages, by_path=by_path,
+        ctx = dict(site_url=site_url, assets_url=assets_url, noindex=noindex, root=root, theme=theme,
+                   photo_prefix=root + photo_rel, photos=photos, pages=pages, by_path=by_path,
                    articles=articles, today=today, defs=defs_svg)
         for key in (page.get("photo"),) + tuple(s.get("photo") for s in page.get("sections") or [] if isinstance(s, dict)):
             if key and key not in photos:
                 warns.append("%s: нет фотографии %r" % (page["_file"], key))
         html = templates.render(page, ctx)
-        html = expand_photos(html, ctx)
+        html = expand_photos(html, ctx, templates)
         html = rewrite_links(html, root)
-        out = OUT / page["path"] / "index.html"
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(html, encoding="utf-8")
+        used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.jpg', html))
+        target = out / page["path"] / "index.html"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(html, encoding="utf-8")
         for w in warnings_for(page):
             warns.append("%s: %s" % (page["_file"], w))
 
@@ -203,23 +221,51 @@ def build():
         if path not in by_path:
             warns.append("ожидаемая страница ещё не написана: /%s (%s) — ссылки на неё уже стоят" % (path, label))
 
+    # 404 (если тема умеет)
+    if hasattr(templates, "render_404"):
+        ctx = dict(site_url=site_url, assets_url=assets_url, noindex=True, root="", theme=theme,
+                   photo_prefix=photo_rel, photos=photos, pages=pages, by_path=by_path, articles=articles, today=today, defs=defs_svg)
+        html = rewrite_links(templates.render_404(ctx), "")
+        used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.jpg', html))
+        (out / "404.html").write_text(html, encoding="utf-8")
+
+    # фотографии и логотипы отдельного сайта
+    if standalone:
+        pdir = out / "assets" / "photos"
+        pdir.mkdir(parents=True, exist_ok=True)
+        for name in sorted(used_photos):
+            for fn in (name + ".jpg", name + "-900.jpg"):
+                src = photos_dir / fn
+                if src.exists():
+                    shutil.copy2(src, pdir / fn)
+                elif fn.endswith(".jpg") and not fn.endswith("-900.jpg"):
+                    warns.append("нет файла фотографии %s" % fn)
+        logo_src = photos_dir.parent / "logo"
+        if logo_src.exists():
+            ldir = out / "assets" / "logo"
+            ldir.mkdir(parents=True, exist_ok=True)
+            for f in logo_src.glob("*.svg"):
+                shutil.copy2(f, ldir / f.name)
+
     # sitemap.xml
     items = []
     for page in sorted(pages, key=lambda p: p["path"]):
-        if page["kind"] == "article":
-            last = page.get("updated") or page.get("date") or today
-        else:
-            last = today
+        last = (page.get("updated") or page.get("date") or today) if page["kind"] == "article" else today
         prio = {"home": "1.0", "service": "0.8", "hub": "0.8", "article": "0.6"}.get(page["kind"], "0.5")
-        items.append("  <url><loc>%s/%s</loc><lastmod>%s</lastmod><priority>%s</priority></url>" % (SITE_URL, page["path"], last, prio))
-    (OUT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s\n</urlset>\n' % "\n".join(items), encoding="utf-8")
+        items.append("  <url><loc>%s/%s</loc><lastmod>%s</lastmod><priority>%s</priority></url>" % (site_url, page["path"], last, prio))
+    (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s\n</urlset>\n' % "\n".join(items), encoding="utf-8")
 
     # robots.txt
-    (OUT / "robots.txt").write_text(
-        "# Макет закрыт от индексации. На боевом сайте заменить «Disallow: /» на «Allow: /» (и убрать NOINDEX в build.py).\n"
-        "User-agent: *\nDisallow: /\n\nSitemap: %s/sitemap.xml\n" % SITE_URL, encoding="utf-8")
+    if noindex:
+        robots = ("# Макет закрыт от индексации. На боевом сайте заменить «Disallow: /» на «Allow: /»\n"
+                  "# и собрать сайт с флагом --index (убирает <meta name=\"robots\" content=\"noindex\">).\n"
+                  "User-agent: *\nDisallow: /\n\nSitemap: %s/sitemap.xml\n" % site_url)
+    else:
+        robots = "User-agent: *\nAllow: /\nDisallow: /assets/\n\nSitemap: %s/sitemap.xml\n" % site_url
+    (out / "robots.txt").write_text(robots, encoding="utf-8")
+    (out / ".nojekyll").write_text("", encoding="utf-8")
 
-    print("Собрано страниц: %d → %s" % (len(pages), OUT))
+    print("Собрано страниц: %d (тема %s) → %s" % (len(pages), theme, out))
     for p in pages:
         print("  /%s" % p["path"])
     for w in warns:
@@ -229,5 +275,30 @@ def build():
     return 1 if errors else 0
 
 
+def main(argv=None):
+    ap = argparse.ArgumentParser(description="Сборка сайта «Инком-Аудит»")
+    ap.add_argument("--theme", choices=("pechat", "sverka"), default="pechat")
+    ap.add_argument("--out", help="папка вывода (по умолчанию: ../site/full для pechat, docs для sverka)")
+    ap.add_argument("--site-url", help="адрес сайта без завершающего «/» (для canonical, sitemap, JSON-LD)")
+    ap.add_argument("--photos", help="папка с фотографиями (по умолчанию ../../incom-redesign/site/assets/photos)")
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("--noindex", dest="noindex", action="store_true", help="закрыть от индексации (по умолчанию)")
+    g.add_argument("--index", dest="noindex", action="store_false", help="открыть для индексации (боевой сайт)")
+    ap.set_defaults(noindex=True)
+    a = ap.parse_args(argv)
+
+    if a.theme == "pechat":
+        out = Path(a.out) if a.out else ROOT.parent / "incom-redesign" / "site" / "full"
+        site_url = a.site_url or "https://greenorangeptftm.github.io/incom-redesign/full"
+    else:
+        out = Path(a.out) if a.out else ROOT / "docs"
+        site_url = a.site_url or "https://greenorangeptftm.github.io/incom-audit"
+    photos_dir = Path(a.photos) if a.photos else DEFAULT_PHOTOS
+    if not photos_dir.exists():
+        print("ОШИБКА: папка с фотографиями не найдена: %s" % photos_dir)
+        return 1
+    return build(a.theme, out.resolve(), site_url.rstrip("/"), photos_dir.resolve(), a.noindex)
+
+
 if __name__ == "__main__":
-    sys.exit(build())
+    sys.exit(main())
