@@ -57,7 +57,7 @@
     listen(window.matchMedia('(min-width: 1081px)'), function (e) { if (e.matches) setMenu(false); });
   }
 
-  /* ——— подчёркивание в заголовке первого экрана ——— */
+  /* ——— подчеркивание в заголовке первого экрана ——— */
   var uline = q('#uline');
   if (uline && !RM) { arm(uline); setTimeout(function () { draw(uline); }, (d.fonts && d.fonts.status !== 'loaded') ? 900 : 500); }
 
@@ -142,7 +142,7 @@
   var cf = q('#checkForm');
   if (cf) {
     var fInc = q('#inc'), fAst = q('#ast'), fAo = q('#ao'), fDev = q('#dev'), fSec = q('#secu');
-    var vEl = q('#verdict'), vWhy = q('#verdictWhy'), vCta = q('#checkCtaT');
+    var vEl = q('#verdict'), vWhy = q('#verdictWhy'), vCta = q('#checkCtaT'), vActs = q('#checkActs');
     var num = function (v) { v = String(v || '').replace(/[\s ]/g, '').replace(',', '.'); if (!v) return null; var n = parseFloat(v); return isFinite(n) ? n : null; };
     var setSt = function (key, state) {
       var st = q('#st-' + key); if (!st) return;
@@ -154,12 +154,14 @@
       var i = num(fInc.value), a = num(fAst.value), R = [];
       setSt('inc', i === null ? 'empty' : (i > 800 ? 'yes' : 'no')); if (i !== null && i > 800) R.push('доходы за 2025 год больше 800 млн ₽');
       setSt('ast', a === null ? 'empty' : (a > 400 ? 'yes' : 'no')); if (a !== null && a > 400) R.push('активы на 31.12.2025 больше 400 млн ₽');
-      setSt('ao', fAo.checked ? 'yes' : 'no'); if (fAo.checked) R.push('компания — акционерное общество (как правило, аудит обязателен, уточним)');
+      setSt('ao', fAo.checked ? 'yes' : 'no'); if (fAo.checked) R.push('компания — акционерное общество (как правило, аудит обязателен, уточним на консультации)');
       setSt('dev', fDev.checked ? 'yes' : 'no'); if (fDev.checked) R.push('компания — застройщик по 214-ФЗ');
-      setSt('sec', fSec.checked ? 'yes' : 'no'); if (fSec.checked) R.push('ценные бумаги на торгах или консолидированная отчётность');
-      if (R.length) { vEl.setAttribute('data-v', 'yes'); vEl.textContent = 'Скорее всего, обязательный аудит нужен'; vWhy.textContent = 'Основание: ' + R.join('; ') + '.'; vCta.textContent = 'Обсудить аудит за 2026 год'; }
-      else if (i === null || a === null) { vEl.setAttribute('data-v', 'empty'); vEl.textContent = 'Впишите доходы и активы'; vWhy.textContent = 'Для оценки нужны оба показателя за 2025 год, в миллионах рублей.'; vCta.textContent = 'Спросить аудитора'; }
-      else { vEl.setAttribute('data-v', 'no'); vEl.textContent = 'По этим данным аудит не обязателен'; vWhy.textContent = 'Инициативный или экспресс-аудит всё равно поможет найти ошибки до налоговой проверки.'; vCta.textContent = 'Узнать про экспресс-аудит'; }
+      setSt('sec', fSec.checked ? 'yes' : 'no'); if (fSec.checked) R.push('ценные бумаги на торгах или консолидированная отчетность');
+      var mode = R.length ? 'yes' : (i === null || a === null) ? 'empty' : 'no';
+      vEl.setAttribute('data-v', mode); if (vActs) vActs.setAttribute('data-v', mode); vCta.textContent = 'Отправить заявку';
+      if (mode === 'yes') { vEl.textContent = 'Скорее всего, обязательный аудит нужен'; vWhy.textContent = 'Основание: ' + R.join('; '); }
+      else if (mode === 'empty') { vEl.textContent = 'Впишите доходы и активы'; vWhy.textContent = 'Для оценки нужны оба показателя за 2025 год, в миллионах рублей'; }
+      else { vEl.textContent = 'Компания не подлежит обязательному аудиту'; vWhy.textContent = 'Инициативный и налоговый аудит поможет собственнику избежать возможных рисков'; }
     };
     cf.addEventListener('input', evalCheck); cf.addEventListener('change', evalCheck);
     cf.addEventListener('submit', function (e) { e.preventDefault(); });
@@ -177,19 +179,19 @@
       var ent = Number(q('#c-ent').value), type = q('#c-type').value, ind = q('#c-ind').value, term = q('#c-term').value;
       var f = [], add = function (ok, text) { f.push([ok, text]); };
       if (rev === null && ast === null) add(null, 'Укажите выручку и активы хотя бы примерно, тогда оценка будет точнее');
-      if (rev !== null) add(rev > 800, rev > 800 ? 'Выручка выше 800 млн ₽: больше операций и документов для выборки' : 'Выручка до 800 млн ₽: обычный объём выборки');
-      if (ast !== null) add(ast > 400, ast > 400 ? 'Активы выше 400 млн ₽: больше участков учёта для проверки' : 'Активы до 400 млн ₽: обычный объём проверки');
+      if (rev !== null) add(rev > 800, rev > 800 ? 'Выручка выше 800 млн ₽: больше операций и документов для выборки' : 'Выручка до 800 млн ₽: обычный объем выборки');
+      if (ast !== null) add(ast > 400, ast > 400 ? 'Активы выше 400 млн ₽: больше участков учета для проверки' : 'Активы до 400 млн ₽: обычный объем проверки');
       if (ent > 1) add(true, 'Несколько юридических лиц: отдельное заключение по каждому');
-      if (type === 'dev') add(true, 'Застройщик по 214-ФЗ: проверяем раздельный учёт по объектам и эскроу-счета');
-      if (type === 'ifrs') add(true, 'Отчётность по МСФО: объём зависит от трансформации и консолидации');
+      if (type === 'dev') add(true, 'Застройщик по 214-ФЗ: проверяем раздельный учет по объектам и эскроу-счета');
+      if (type === 'ifrs') add(true, 'Отчетность по МСФО: объем зависит от трансформации и консолидации');
       if (type === 'tax') add(true, 'Налоговый аудит: сплошная проверка первички по выбранным налогам');
-      if (type === 'dd') add(true, 'Due diligence: проверка под сделку, объём зависит от периода и участков');
-      if (type === 'express') add(false, 'Экспресс-аудит: ограниченный объём, ниже базовой ставки обязательного аудита не бывает');
-      if (ind === 'build') add(true, 'Строительство: незавершённое производство и договоры подряда проверяем отдельно');
-      if (ind === 'lease') add(true, 'Лизинг: учёт аренды по ФСБУ 25/2018 по каждому договору');
+      if (type === 'dd') add(true, 'Due diligence: проверка под сделку, объем зависит от периода и участков');
+      if (type === 'express') add(false, 'Экспресс-аудит: ограниченный объем, ниже базовой ставки обязательного аудита не бывает');
+      if (ind === 'build') add(true, 'Строительство: незавершенное производство и договоры подряда проверяем отдельно');
+      if (ind === 'lease') add(true, 'Лизинг: учет аренды по ФСБУ 25/2018 по каждому договору');
       if (ind === 'prod') add(true, 'Производство: себестоимость и запасы по ФСБУ 5/2019');
       if (term === 'fast') add(true, 'Сжатые сроки: увеличиваем команду на проекте');
-      if (!f.length) add(false, 'Объём стандартный: базовая ставка');
+      if (!f.length) add(false, 'Объем стандартный: базовая ставка');
       out.textContent = '';
       f.forEach(function (x) { var li = d.createElement('li'); li.className = x[0] === true ? 'yes' : x[0] === false ? 'no' : 'na'; li.textContent = x[1]; out.appendChild(li); });
       var up = f.filter(function (x) { return x[0] === true; }).length;
@@ -271,22 +273,30 @@
     });
   });
 
-  /* ——— заявка: демо-режим ——— */
+  /* ——— заявка: демо-режим, обязательные поля, счетчик символов ——— */
   var lead = q('#leadForm');
   if (lead) {
-    var nameEl = q('#f-name'), phoneEl = q('#f-phone'), msg = q('#leadMsg'), msgT = q('#leadMsgText');
+    var msg = q('#leadMsg'), msgT = q('#leadMsgText'), msgEl = q('#f-msg'), cnt = q('#msgCount');
+    var req = [['#f-name', function (v) { return !!v.trim(); }], ['#f-phone', function (v) { return v.replace(/\D/g, '').length >= 10; }],
+               ['#f-email', function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()); }], ['#f-company', function (v) { return !!v.trim(); }],
+               ['#f-msg', function (v) { return !!v.trim(); }]];
+    if (msgEl && cnt) {
+      var lim = Number(msgEl.getAttribute('maxlength')) || 500;
+      var upd = function () { if (msgEl.value.length > lim) msgEl.value = msgEl.value.slice(0, lim); cnt.textContent = msgEl.value.length + ' / ' + lim; };
+      msgEl.addEventListener('input', upd); upd();
+    }
     lead.addEventListener('submit', function (e) {
       e.preventDefault();
-      var badName = !nameEl.value.trim(), badPhone = phoneEl.value.replace(/\D/g, '').length < 10;
-      nameEl.setAttribute('aria-invalid', String(badName)); phoneEl.setAttribute('aria-invalid', String(badPhone));
+      var first = null;
+      req.forEach(function (r) { var el = q(r[0]); if (!el) return; var ok = r[1](el.value); el.setAttribute('aria-invalid', String(!ok)); if (!ok && !first) first = el; });
       msg.hidden = false;
-      if (badName || badPhone) { msg.classList.add('is-warn'); msgT.textContent = 'Укажите имя и телефон. В номере должно быть не меньше 10 цифр.'; (badName ? nameEl : phoneEl).focus(); return; }
-      msg.classList.remove('is-warn'); msgT.textContent = 'Это демо-макет — в рабочей версии заявка уйдёт менеджеру.';
+      if (first) { msg.classList.add('is-warn'); msgT.textContent = 'Заполните поля со звездочкой: имя, телефон, e-mail, компания и сообщение'; first.focus(); return; }
+      msg.classList.remove('is-warn'); msgT.textContent = 'Это демо-макет — в рабочей версии заявка уйдет менеджеру';
       if (!RM) drawSoon(q('.mk', msg));
     });
   }
 
-  /* ——— якоря: заголовок встаёт под парящей шапкой ——— */
+  /* ——— якоря: заголовок встает под парящей шапкой ——— */
   function offset() { var r = bar ? bar.getBoundingClientRect() : { bottom: 84 }; return r.bottom + 24; }
   var goTimer = 0;
   function targetY(id) {

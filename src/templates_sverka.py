@@ -76,10 +76,10 @@ def header(page, tone):
         '<header class="lg" data-tone="%s" id="lg">\n  <div class="lg__bar">\n'
         '    <a class="lg__brand" href="/" aria-label="Инком-Аудит, на главную">%s<span><b>ИНКОМ-АУДИТ</b><small>Аудиторская компания</small></span></a>\n'
         '    <nav class="lg__links" aria-label="Разделы"><span class="lg__lens" aria-hidden="true"></span>%s</nav>\n'
-        '    <a class="lg__phone" href="%s">%s</a>\n    <a class="lg__cta" href="#zayavka">Рассчитать стоимость</a>\n'
+        '    <a class="lg__phone" href="%s">%s</a>\n    <a class="lg__cta" href="#zayavka">Узнать стоимость</a>\n'
         '    <button class="lg__burger" type="button" aria-expanded="false" aria-controls="lg-sheet" aria-label="Открыть меню"><i></i><i></i><i></i></button>\n'
         '  </div>\n  <nav class="lg__sheet" id="lg-sheet" hidden aria-label="Меню">\n    %s\n'
-        '    <a href="/#check">Нужен ли нам аудит? <span aria-hidden="true">→</span></a>\n'
+        '    <a href="/#check">Критерии обязательного аудита <span aria-hidden="true">→</span></a>\n'
         '    <a class="lg__sheet-phone" href="%s">%s</a>\n  </nav>\n</header>\n'
         % (tone, mark("hdr", circle=True), "".join(links), PHONE_HREF, PHONE, "\n    ".join(sheet), PHONE_HREF, PHONE))
 
@@ -93,7 +93,7 @@ def footer():
         '<span><b>ИНКОМ-АУДИТ</b><small>Развитие и поддержка вашего бизнеса</small></span></a>\n'
         '        <p>%s. Член СРО ААС «Содружество», ОРНЗ 12006082980. Аудит, МСФО, бухгалтерские и юридические услуги по всей России. Офис в Москве.</p>\n'
         '      </div>\n      <div><h4>Услуги</h4><ul>%s</ul></div>\n      <div><h4>Компания</h4><ul>%s</ul></div>\n'
-        '      <div><h4>Контакты</h4><ul><li><a href="%s">%s</a></li><li><a href="mailto:%s">%s</a></li><li>Офис в Москве · работаем по всей России</li></ul></div>\n'
+        '      <div><h4>Контакты</h4><ul><li><a href="%s">%s</a></li><li><a href="mailto:%s">%s</a></li><li>123458, Москва, ул. Твардовского, д. 2, корп. 5</li><li>Офис в Москве · работаем по всей России</li></ul></div>\n'
         '    </div>\n    <div class="legal"><span>© 2010–2026 %s</span><span>Член СРО ААС «Содружество» · ОРНЗ 12006082980</span></div>\n'
         '    <p class="credits">Фотографии: Unsplash (свободная лицензия). Макет сайта: формы не отправляются, цифры в примерах условные.</p>\n  </div>\n</footer>\n'
         % (mark("ft", lockup=True), ORG, svc, comp, PHONE_HREF, PHONE, MAIL, MAIL, ORG))
@@ -135,25 +135,26 @@ def strip(items, cls="strip"):
 
 
 def zayavka(page):
-    opts = ["Обязательный аудит", "Стоимость аудита", "Аудит застройщика по 214-ФЗ", "Налоговый аудит или требование ФНС",
-            "Инициативный или экспресс-аудит", "Due diligence перед сделкой", "Отчётность по МСФО", "Бухгалтерское сопровождение", "Консалтинг и споры", "Другое"]
+    opts = ["Обязательный аудит", "Инициативный аудит", "Налоговый аудит", "Аудит застройщика по 214-ФЗ", "Дью дилидженс перед сделкой",
+            "Подготовка отчетности по МСФО", "Бухгалтерские услуги", "Консалтинг и споры", "Другое"]
     pre = page.get("form_task") or ""
     options = "".join('<option%s>%s</option>' % (' selected' if o == pre else "", o) for o in opts)
     return (
         '<section class="contact" id="zayavka" data-tone="dark" aria-labelledby="zayavka-h">\n  <div class="wrap contact-grid">\n'
-        '    <div class="contact-l" data-rise>\n      <h2 class="h2" id="zayavka-h">Расскажите о задаче. Назовём стоимость.</h2>\n'
-        '      <p class="lead">Ответим, нужен ли вам аудит, сколько он будет стоить и какие документы подготовить. Всё, что вы расскажете о компании, остаётся между нами.</p>\n'
+        '    <div class="contact-l" data-rise>\n      <h2 class="h2 h2-long" id="zayavka-h">Для определения объема и стоимости услуг заполните форму обратной связи или свяжитесь с нами любым удобным способом</h2>\n'
         '      <p class="phone-big" id="phoneTxt">%s</p>\n      <p class="email"><span id="mailTxt">%s</span></p>\n'
         '      <div class="c-row"><a class="btn btn-white" href="%s">Позвонить</a><button class="btn btn-line" type="button" data-copy="%s" data-target="phoneTxt">Скопировать номер</button></div>\n'
-        '      <p class="geo">Офис в Москве · работаем по всей России: на месте и удалённо</p>\n    </div>\n'
+        '      <p class="geo">Офис в Москве. Работаем по всей России</p>\n    </div>\n'
         '    <form class="form-sheet" id="leadForm" novalidate aria-labelledby="lead-h">\n'
-        '      <div class="form-hd"><span>Заявка</span><span>Перезвоним и уточним задачу</span></div>\n      <h3 id="lead-h">Рассчитаем стоимость</h3>\n'
-        '      <div class="fld"><label for="f-name">Как вас зовут</label><input id="f-name" name="name" autocomplete="name" required></div>\n'
-        '      <div class="fld"><label for="f-phone">Телефон</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" required></div>\n'
-        '      <div class="fld"><label for="f-company">Компания или ИНН <span class="opt">необязательно</span></label><input id="f-company" name="company" autocomplete="organization"></div>\n'
-        '      <div class="fld"><label for="f-task">Задача</label><select id="f-task" name="task">%s</select></div>\n'
+        '      <h3 id="lead-h">Форма обратной связи</h3>\n'
+        '      <div class="fld"><label for="f-name">Ваше имя*</label><input id="f-name" name="name" autocomplete="name" required></div>\n'
+        '      <div class="fld"><label for="f-phone">Телефон*</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" required></div>\n'
+        '      <div class="fld"><label for="f-email">E-mail*</label><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>\n'
+        '      <div class="fld"><label for="f-company">Наименование компании*</label><input id="f-company" name="company" autocomplete="organization" required></div>\n'
+        '      <div class="fld"><label for="f-msg">Сообщение*</label><textarea id="f-msg" name="message" rows="4" maxlength="500" required></textarea><span class="counter" id="msgCount" aria-live="polite">0 / 500</span></div>\n'
+        '      <div class="fld"><label for="f-task">Задача <span class="opt">необязательно</span></label><select id="f-task" name="task">%s</select></div>\n'
         '      <button class="btn btn-pen" type="submit">Отправить заявку <span class="arr" aria-hidden="true">→</span></button>\n'
-        '      <p class="consent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</p>\n'
+        '      <p class="consent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</p>\n'
         '      <p class="form-msg" id="leadMsg" role="status" hidden>%s<span id="leadMsgText"></span></p>\n    </form>\n  </div>\n</section>\n'
         % (PHONE, MAIL, PHONE_HREF, PHONE, options, mk()))
 
@@ -163,27 +164,27 @@ def st(key, state):
             % (key, state, mk(cls="mk" + ("" if state == "yes" else " is-armed"))))
 
 
-def checker(sec=None, h2_cls="h2"):
+def checker(sec=None, h2_cls="h2", self_page=False):
     sec = sec or {}
-    h2 = esc(sec.get("h2") or "Нужен ли вам обязательный аудит?")
-    intro = esc(sec.get("intro") or "Аудит отчётности за 2026 год обязателен, если доходы за 2025 год больше 800 млн ₽ или активы на 31.12.2025 больше 400 млн ₽. Достаточно одного критерия.")
+    h2 = esc(sec.get("h2") or "Критерии обязательного аудита")
+    intro = esc(sec.get("intro") or "Аудит отчетности за 2026 год обязателен, если доходы за 2025 год больше 800 млн ₽ или активы на 31.12.2025 больше 400 млн ₽. Достаточно одного критерия*")
+    more = "" if self_page else '<a class="link" id="checkMore" href="/audit/obyazatelnyj/">Подробнее об обязательном аудите</a>'
     return (
         '<div class="check-grid">\n  <div class="check-intro" data-rise>\n    <h2 class="%s" id="check-h">%s</h2>\n    <p class="lead">%s</p>\n'
         '    <p class="law-ref">Статья 5 Федерального закона № 307-ФЗ «Об аудиторской деятельности»</p>\n'
-        '    <p class="fine">Это предварительная оценка. Есть и другие основания, например для финансовых организаций. Точный ответ дадим на консультации.</p>\n  </div>\n'
+        '    <p class="fine">*Оценка является предварительной, Федеральный закон №307-ФЗ содержит также ряд других критериев</p>\n  </div>\n'
         '  <form class="wp" id="checkForm" novalidate aria-labelledby="check-h">\n'
-        '    <div class="wp-hd"><p>Рабочий документ · критерии обязательного аудита · отчётность за 2026</p><span class="chip">Пример — впишите свои цифры</span></div>\n'
         '    <div class="wp-cols" aria-hidden="true"><span>Показатель</span><span>Значение</span><span>Критерий</span><span>Итог</span></div>\n'
         '    <div class="wp-row"><label for="inc">Доходы за 2025 год</label><div class="wp-field"><input id="inc" name="inc" type="text" inputmode="decimal" autocomplete="off" value="640"><span class="unit">млн ₽</span></div><span class="wp-crit">больше 800 млн ₽</span>%s</div>\n'
         '    <div class="wp-row"><label for="ast">Активы на 31.12.2025</label><div class="wp-field"><input id="ast" name="ast" type="text" inputmode="decimal" autocomplete="off" value="455"><span class="unit">млн ₽</span></div><span class="wp-crit">больше 400 млн ₽</span>%s</div>\n'
         '    <div class="wp-row cb"><label class="cbl" for="ao"><input class="cbx" type="checkbox" id="ao" name="ao"><span>Компания — акционерное общество</span></label><span class="wp-crit">как правило, да</span>%s</div>\n'
         '    <div class="wp-row cb"><label class="cbl" for="dev"><input class="cbx" type="checkbox" id="dev" name="dev"><span>Привлекаем средства дольщиков по 214-ФЗ</span></label><span class="wp-crit">да</span>%s</div>\n'
-        '    <div class="wp-row cb"><label class="cbl" for="secu"><input class="cbx" type="checkbox" id="secu" name="secu"><span>Ценные бумаги на торгах или консолидированная отчётность</span></label><span class="wp-crit">да</span>%s</div>\n'
+        '    <div class="wp-row cb"><label class="cbl" for="secu"><input class="cbx" type="checkbox" id="secu" name="secu"><span>Ценные бумаги на торгах или консолидированная отчетность</span></label><span class="wp-crit">да</span>%s</div>\n'
         '    <div class="wp-result" aria-live="polite"><p class="verdict" id="verdict" data-v="yes">Скорее всего, обязательный аудит нужен</p>'
-        '<p class="verdict-why" id="verdictWhy">Основание: активы на 31.12.2025 больше 400 млн ₽.</p><p class="prelim">Предварительная оценка · уточним на консультации</p>'
-        '<a class="btn btn-pen" href="#zayavka"><span id="checkCtaT">Обсудить аудит за 2026 год</span> <span class="arr" aria-hidden="true">→</span></a>'
-        '<a class="link" href="/audit/obyazatelnyj/">Подробнее об обязательном аудите</a></div>\n  </form>\n</div>\n'
-        % (h2_cls, h2, intro, st("inc", "no"), st("ast", "yes"), st("ao", "no"), st("dev", "no"), st("sec", "no")))
+        '<p class="verdict-why" id="verdictWhy">Основание: активы на 31.12.2025 больше 400 млн ₽</p><p class="prelim">Предварительная оценка · уточним на консультации</p>'
+        '<div class="wp-acts" id="checkActs" data-v="yes"><a class="btn btn-pen" id="checkCta" href="#zayavka"><span id="checkCtaT">Отправить заявку</span> <span class="arr" aria-hidden="true">→</span></a>'
+        '<a class="btn btn-pen alt" href="/audit/iniciativnyj/">Инициативный аудит</a><a class="btn btn-ink alt" href="/audit/nalogovyj/">Налоговый аудит</a>%s</div></div>\n  </form>\n</div>\n'
+        % (h2_cls, h2, intro, st("inc", "no"), st("ast", "yes"), st("ao", "no"), st("dev", "no"), st("sec", "no"), more))
 
 
 def calculator(sec=None):
@@ -244,7 +245,7 @@ def render_section(ctx, s, i):
     t = s["type"]
     if t == "checker":
         sid = s.get("id") or "check"
-        return '<section class="sec sec-wide" id="%s">%s</section>' % (sid, checker(s, h2_cls="h2s")), sid, s.get("h2") or "Нужен ли аудит?"
+        return '<section class="sec sec-wide" id="%s">%s</section>' % (sid, checker(s, h2_cls="h2s", self_page=(ctx.get("page") or {}).get("path") == "audit/obyazatelnyj/")), sid, s.get("h2") or "Критерии обязательного аудита"
     if t == "calculator":
         sid = s.get("id") or "calc"
         return '<section class="sec sec-wide" id="%s">%s</section>' % (sid, calculator(s)), sid, s.get("h2") or "Стоимость"
@@ -276,6 +277,9 @@ def render_section(ctx, s, i):
         body = '<blockquote class="law"><p>%s</p>%s</blockquote>' % (s["text"], ('<cite>%s</cite>' % esc(s["source"])) if s.get("source") else "")
     elif t == "articles":
         body = '<div class="posts posts-doc">%s</div>' % "".join(article_cards(ctx, s.get("limit", 3)))
+    elif t == "why":
+        cs = "".join('<div class="whyc">%s<h3>%s</h3><p>%s</p></div>' % (ICONS.get(ic, ICONS["check"]), esc(a), esc(b)) for ic, a, b in s["items"])
+        body = '<div class="why-cards">%s</div>' % cs
     else:
         body = ""
     return head + body + "</section>", sid, s.get("h2")
@@ -286,7 +290,7 @@ def faq_html(page):
     if not f:
         return ""
     items = "".join('<details><summary>%s</summary><div><p>%s</p></div></details>' % (esc(q), a) for q, a in f)
-    return '<section class="sec" id="faq"><h2 class="h2s">Вопросы и ответы</h2><div class="faq">%s</div></section>' % items
+    return '<section class="sec" id="faq"><h2 class="h2s">Часто задаваемые вопросы</h2><div class="faq">%s</div></section>' % items
 
 
 def related_html(page):
@@ -304,7 +308,7 @@ def toc_html(entries):
     if len(entries) < 2:
         return "", ""
     li = "".join('<li><a href="#%s">%s</a></li>' % (sid, esc(h)) for sid, h in entries)
-    aside = '<aside class="toc" aria-label="На этой странице"><div class="toc__in"><p class="lbl">На этой странице</p><ol>%s</ol></div></aside>' % li
+    aside = '<aside class="toc" aria-label="Содержание"><div class="toc__in"><ol>%s</ol></div></aside>' % li
     mobile = '<details class="toc-m"><summary>Содержание</summary><ol>%s</ol></details>' % li
     return aside, mobile
 
@@ -318,7 +322,7 @@ def doc_sections(ctx, page):
     fq = faq_html(page)
     if fq:
         parts.append(fq)
-        toc.append(("faq", "Вопросы и ответы"))
+        toc.append(("faq", "Часто задаваемые вопросы"))
     return "\n".join(parts), toc
 
 
@@ -332,20 +336,25 @@ def doc_block(ctx, page, body, toc, with_toc=True):
 # ---------- страницы ----------
 def page_hero(ctx, page, tone="light", photo=True):
     kick = '<p class="kicker">%s</p>' % esc(page["kicker"]) if page.get("kicker") else ""
-    lead = '<p class="lead">%s</p>' % page["lead"] if page.get("lead") else ""
+    lead = '<p class="%s">%s</p>' % (page.get("lead_cls") or "lead", page["lead"]) if page.get("lead") else ""
     ctas = []
     if page.get("cta"):
         ctas.append(btn(page["cta"][0], page["cta"][1]))
     if page.get("cta2"):
         ctas.append(btn(page["cta2"][0], page["cta2"][1], "ink", arrow=False))
     cta = '<div class="phero-cta">%s</div>' % "".join(ctas) if ctas else ""
-    ph = figure(ctx, page["photo"], page.get("photo_alt") or page["h1"], cls="ph phero-ph", sizes="(max-width: 900px) 100vw, 520px", lazy=False, tick=True) if (photo and page.get("photo")) else ""
+    if photo and page.get("collage"):
+        ph = collage(ctx, "collage phero-ph", lazy=False)
+    else:
+        ph = figure(ctx, page["photo"], page.get("photo_alt") or page["h1"], cls="ph phero-ph", sizes="(max-width: 900px) 100vw, 520px", lazy=False, tick=True) if (photo and page.get("photo")) else ""
     fx = ('<div class="wrap phero-facts">%s</div>' % strip(page["facts"])) if page.get("facts") else ""
     return ('<section class="phero%s" data-tone="%s">\n  <div class="wrap phero-in">\n    <div class="phero-text">%s%s<h1>%s</h1>%s%s</div>\n    %s\n  </div>\n  %s</section>\n'
             % (" phero--nophoto" if not ph else "", tone, T.crumbs(page), kick, esc(page["h1"]), lead, cta, ph, fx))
 
 
 def hero_preload(ctx, page):
+    if page.get("collage"):
+        return ""
     return preload(ctx, page["photo"], "(max-width: 900px) 100vw, 520px") if page.get("photo") else ""
 
 
@@ -360,10 +369,11 @@ def render_contacts(ctx, page):
         '<section class="sec-band" data-tone="light" aria-label="Контакты компании"><div class="wrap cpage">\n'
         '  <div class="cpage-main"><p class="lbl">Телефон</p><p class="phone-big phone-big--ink" id="phoneTxt">%s</p>'
         '<div class="c-row"><a class="btn btn-pen" href="%s">Позвонить</a><button class="btn btn-ink" type="button" data-copy="%s" data-target="phoneTxt">Скопировать номер</button></div>\n'
-        '  <p class="lbl">Почта</p><p class="cpage-txt"><span id="mailTxt">%s</span> <button class="copy" type="button" data-copy="%s" data-target="mailTxt">Скопировать</button></p>\n'
-        '  <p class="lbl">География</p><p class="cpage-txt">Офис в Москве · работаем по всей России: на месте и удалённо</p></div>\n'
-        '  <dl class="facts"><div><dt>Организация</dt><dd>%s</dd></div><div><dt>Членство</dt><dd>СРО ААС «Содружество»</dd></div><div><dt>ОРНЗ</dt><dd>12006082980</dd></div><div><dt>Работаем</dt><dd>с 2010 года</dd></div></dl>\n'
-        '</div></section>\n' % (PHONE, PHONE_HREF, PHONE, MAIL, MAIL, ORG))
+        '  <p class="lbl">E-mail</p><p class="phone-big phone-big--ink phone-big--sm" id="mailTxt">%s</p>'
+        '<div class="c-row"><a class="btn btn-pen" href="mailto:%s">Написать</a><button class="btn btn-ink" type="button" data-copy="%s" data-target="mailTxt">Скопировать Email</button></div>\n'
+        '  <p class="lbl">Московский офис</p><p class="phone-big phone-big--ink phone-big--sm">123458, Москва, ул. Твардовского, д. 2, корп. 5</p></div>\n'
+        '  <dl class="facts"><div><dt>Организация</dt><dd>%s</dd></div><div><dt>Членство</dt><dd>СРО ААС «Содружество»</dd></div><div><dt>ОРНЗ</dt><dd>12006082980</dd></div></dl>\n'
+        '</div></section>\n' % (PHONE, PHONE_HREF, PHONE, MAIL, MAIL, MAIL, ORG))
     return base(ctx, page, page_hero(ctx, page, photo=False) + info + doc_block(ctx, page, body, toc, with_toc=False) + related_html(page) + zayavka(page))
 
 
@@ -439,25 +449,62 @@ def ledger(ctx):
         % (legend, figure(ctx, "binders-color", "", cls="stage-bg", sizes="(max-width:1000px) 100vw, 700px"), mk(), "".join(rows), mk(SIGMA, label="итог пересчитан"), mk(extra=' id="note2Tick"')))
 
 
+INDUSTRIES8 = INDUSTRIES + [
+    ("Арендный бизнес", "ind-rent", "Бизнес-центр с арендными площадями", ["учет аренды у арендодателя по ФСБУ 25/2018", "доходы от аренды, НДС и налог на имущество по объектам"]),
+    ("Сельское хозяйство", "ind-agro", "Поле и сельскохозяйственная техника", ["ЕСХН и условия его применения", "субсидии и целевое финансирование (ПБУ 13/2000)"]),
+    ("Инвестиционные компании", "ind-invest", "Деловой центр, офисы инвестиционных компаний", ["финансовые вложения и их обесценение (ПБУ 19/02)", "консолидация группы и отчетность для инвесторов"]),
+]
+
+
 def industries(ctx, items):
     notes = {"Торговля": ("остатки сверены", "12%", "72%"), "Строительство": ("214-ФЗ", "10%", "16%"), "Производство": ("себестоимость", "12%", "16%"),
-             "Лизинг": ("ФСБУ 25", "10%", "16%"), "IT": ("НМА", "12%", "76%")}
+             "Лизинг": ("ФСБУ 25", "10%", "16%"), "IT": ("НМА", "12%", "76%"), "Арендный бизнес": ("ФСБУ 25", "12%", "16%"),
+             "Сельское хозяйство": ("субсидии", "12%", "74%"), "Инвестиционные компании": ("ПБУ 19", "10%", "16%")}
     ells = ["M62 30C80 28 92 36 92 48 92 60 80 66 64 66 48 66 38 58 39 47 40 36 52 30 70 31", "M48 52C70 50 90 58 90 70 90 82 70 88 50 88 28 88 10 82 10 70 10 58 28 52 56 53",
             "M40 42C62 40 82 48 82 60 82 72 64 78 44 78 24 78 10 70 10 59 10 48 24 42 50 43", "M46 40C70 38 94 48 94 60 94 72 72 78 48 78 24 78 6 70 6 59 6 48 24 40 54 41",
             "M48 30C66 29 80 38 80 50 80 62 66 68 50 68 32 68 20 61 20 49 20 37 33 30 56 31"]
     cards = []
     for n, (name, key, alt, pts) in enumerate(items):
         note, left, top = notes.get(name, (name, "12%", "16%"))
-        ph = figure(ctx, key, alt, cls="ind-ph", sizes="(max-width:600px) 76vw, (max-width:1100px) 34vw, 230px",
-                    extra="", tick=False)
+        ph = figure(ctx, key, alt, cls="ind-ph", sizes="(max-width:640px) 76vw, (max-width:1100px) 46vw, 290px", extra="", tick=False)
+        if not ph:
+            ph = '<figure class="ind-ph ind-ph--empty" aria-hidden="true"></figure>'
         ph = ph.replace("</figure>", '<svg class="mk ann" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="%s"/></svg><p class="ann-note hand" style="left:%s;top:%s">%s ✓</p></figure>' % (ells[n % 5], left, top, esc(note)))
         li = "".join("<li>%s<span>%s</span></li>" % (mk(), esc(p)) for p in pts)
         cards.append('<article class="ind-card" data-ann>%s<h3>%s</h3><ul class="ticks">%s</ul></article>' % (ph, esc(name), li))
     return (
         '<section class="sec-band ind cv" id="industries" data-tone="dark" aria-labelledby="ind-h">\n  <div class="wrap">\n'
-        '    <div class="sec-head" data-rise><h2 class="h2" id="ind-h">Отрасли, которые мы знаем изнутри</h2>'
-        '<p class="lead">У каждой отрасли свои слабые места в учёте. Вот на что аудитор смотрит в первую очередь.</p></div>\n'
+        '    <div class="sec-head sec-head--one" data-rise><h2 class="h2" id="ind-h">Кто наши основные клиенты</h2></div>\n'
         '    <div class="ind-scroll"><div class="ind-grid">%s</div></div>\n    <p class="ind-hint" aria-hidden="true">Листайте карточки вбок →</p>\n  </div>\n</section>\n' % "".join(cards))
+
+
+COLLAGE_KEYS = ["ind-construction-2", "ind-trade", "ind-production", "ind-agro", "ind-leasing", "ind-it", "ind-rent"]
+COLLAGE_ALT = {"ind-construction-2": "Строящиеся башни и краны", "ind-trade": "Стеллажи с коробками на складе", "ind-production": "Производственный цех",
+               "ind-agro": "Поле и сельскохозяйственная техника", "ind-leasing": "Экскаватор на строительной площадке", "ind-it": "Коридор серверного зала", "ind-rent": "Бизнес-центр"}
+ICONS = {
+    "percent": '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/><path d="M18 6 6 18"/></svg>',
+    "grid": '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>',
+    "medal": '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="5.5"/><path d="M9 13.8 7.5 21l4.5-2.4L16.5 21 15 13.8M10 9l1.5 1.5L14.5 7.5"/></svg>',
+    "shield": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.5 6v5.2c0 4.4 3 8.1 7.5 9.8 4.5-1.7 7.5-5.4 7.5-9.8V6Z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.6"/></svg>',
+    "lock": '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2.5"/></svg>',
+    "check": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+}
+
+
+def collage(ctx, cls="collage", lazy=True):
+    """Мозаика из фотографий отраслей (первая плитка высокая) с одной пометкой аудитора."""
+    tiles = []
+    for key in COLLAGE_KEYS:
+        f = figure(ctx, key, COLLAGE_ALT.get(key, ""), cls="ph col-ph", sizes="(max-width:900px) 50vw, 260px", lazy=lazy, tick=(len(tiles) == 3))
+        if f:
+            tiles.append(f)
+        if len(tiles) == 5:
+            break
+    if tiles:
+        ann = ('<svg class="mk ann" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M40 36C62 34 84 42 84 54 84 66 64 72 44 72 24 72 10 64 10 53 10 42 24 36 52 37"/></svg>'
+               '<p class="ann-note hand" style="left:10%;top:66%">проверено ✓</p>')
+        tiles[0] = tiles[0].replace("</figure>", ann + "</figure>")
+    return '<div class="%s" data-ann role="img" aria-label="Отрасли наших клиентов: стройка, торговля, производство, лизинг, IT">%s</div>' % (cls, "".join(tiles))
 
 
 def render_home(ctx, page):
@@ -465,35 +512,30 @@ def render_home(ctx, page):
     h1 = h.get("h1_html") or esc(page["h1"])
     uline = '<svg class="mk uline" id="uline" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M4 13C78 6 170 4 296 8M34 17c66-4 146-5 224-2"/></svg>'
     h1 = re.sub(r'<span class="accent">(.*?)</span>', lambda m: '<span class="u">%s%s</span>' % (m.group(1), uline), h1, count=1)
+    tag = '<p class="hero-tag">%s</p>' % esc(h["tagline"]) if h.get("tagline") else ""
     hero_img = figure(ctx, h.get("photo") or "moscow-city-sunset", "Москва-Сити на закате, вид на набережную и проспект", cls="hero-img", sizes="100vw", lazy=False)
     hero = (
         '<section class="hero" id="top" data-tone="dark" aria-labelledby="hero-h">\n  %s\n  <div class="hero-shade" aria-hidden="true"></div>\n'
-        '  <div class="wrap hero-in">\n    <p class="hero-kicker">%s</p>\n    <h1 id="hero-h">%s</h1>\n    <p class="hero-lead">%s</p>\n'
+        '  <div class="wrap hero-in">\n    <p class="hero-kicker">%s</p>\n    <h1 id="hero-h">%s</h1>\n%s    <p class="hero-lead">%s</p>\n'
         '    <div class="hero-cta">%s%s</div>\n  </div>\n  <div class="wrap"><dl class="hero-strip">'
         '<div><dt>Работаем</dt><dd>с&nbsp;2010 года</dd></div><div><dt>Реализовано</dt><dd>300+ проектов</dd></div>'
         '<div><dt>Член СРО ААС «Содружество»</dt><dd>ОРНЗ <span class="nb">12006082980</span></dd></div><div><dt>Стоимость аудита</dt><dd>от&nbsp;40&nbsp;000&nbsp;₽</dd></div></dl></div>\n</section>\n'
-        % (hero_img, esc(h.get("kicker") or "Аудиторская компания · работаем по всей России"), h1, h.get("sub") or page.get("lead", ""),
-           btn(*(h.get("cta") or ("Рассчитать стоимость", "#zayavka"))), btn(*(h.get("cta2") or ("Нужен ли нам аудит?", "#check")), "glass", arrow=False)))
+        % (hero_img, esc(h.get("kicker") or "Аудиторская компания • с 2010 года • Работаем по всей России"), h1, tag, h.get("sub") or page.get("lead", ""),
+           btn(*(h.get("cta") or ("Узнать стоимость", "#zayavka"))), btn(*(h.get("cta2") or ("Обязательный аудит", "/audit/obyazatelnyj/")), "glass", arrow=False)))
 
     d = page.get("directory") or []
-    rows = "".join('<a href="%s"><span class="n">%02d</span><b>%s</b><span class="pr">%s</span><span class="d">%s</span></a>'
-                   % (esc(href), i, esc(t), esc(pr), esc(desc)) for i, (t, desc, pr, href) in enumerate(d, 1))
-    directory = ('<section class="sec-band" id="services" data-tone="light" aria-labelledby="svc-h"><div class="wrap"><div class="sec-head" data-rise><h2 class="h2" id="svc-h">%s</h2><p class="lead">%s</p></div>'
-                 '<div class="dir">%s</div></div></section>\n' % (esc(page.get("directory_h2") or "Услуги"), page.get("directory_lead") or "", rows)) if d else ""
-
-    sits = page.get("situations") or []
-    sc = "".join('<a class="sitc" href="%s">%s<span class="sit-q">%s</span><span class="sit-tag">%s</span></a>' % (esc(href), mk(), esc(q), esc(tag)) for q, tag, href in sits)
-    situations = ('<section class="sec-band sec-band--sheet" id="situations" data-tone="light" aria-labelledby="sit-h"><div class="wrap"><div class="sec-head" data-rise><h2 class="h2" id="sit-h">С чем вы пришли?</h2>'
-                  '<p class="lead">Выберите ситуацию, похожую на вашу. Покажем, какая услуга нужна, что сделаем и что вы получите на выходе.</p></div><div class="sits" data-dv>%s</div></div></section>\n' % sc) if sits else ""
+    rows = "".join('<a href="%s">%s<span>%s</span></a>' % (esc(href), mk(), esc(t)) for t, href in d)
+    directory = ('<section class="sec-band" id="services" data-tone="light" aria-labelledby="svc-h"><div class="wrap"><div class="sec-head sec-head--one" data-rise><h2 class="h2" id="svc-h">%s</h2></div>'
+                 '<div class="dir2" data-dv>%s</div></div></section>\n' % (esc(page.get("directory_h2") or "Наши услуги"), rows)) if d else ""
 
     check = '<section class="sec-band sec-band--sheet" id="check" data-tone="light" aria-labelledby="check-h"><div class="wrap">%s</div></section>\n' % checker()
 
     steps = page.get("process") or []
     st_ = "".join('<li class="step"><span class="node">%d%s</span><h3>%s</h3><p>%s</p></li>' % (i, mk(), esc(a), esc(b)) for i, (a, b) in enumerate(steps, 1))
-    process = ('<section class="sec-band cv" id="process" data-tone="light" aria-labelledby="proc-h"><div class="wrap"><div class="sec-head" data-rise><h2 class="h2" id="proc-h">%s</h2><p class="lead">%s</p></div>'
+    process = ('<section class="sec-band cv" id="process" data-tone="light" aria-labelledby="proc-h"><div class="wrap"><div class="sec-head sec-head--one" data-rise><h2 class="h2" id="proc-h">%s</h2></div>'
                '<ol class="proc" id="proc"><li class="track" aria-hidden="true"><span class="fill" id="fill"></span></li>%s</ol>'
                '<p class="proc-more"><a class="link" href="/zakazat-audit/">Как заказать аудит: подробно о каждом шаге <span class="arr" aria-hidden="true">→</span></a></p></div></section>\n'
-               % (esc(page.get("process_h2") or "Как проходит работа"), esc(page.get("process_lead") or "Цена, сроки и состав работ фиксируются в договоре до начала проверки."), st_)) if steps else ""
+               % (esc(page.get("process_h2") or "Как мы строим нашу работу"), st_)) if steps else ""
 
     posts = article_cards(ctx, 3)
     articles = ('<section class="sec-band sec-band--sheet cv" id="articles" data-tone="light" aria-labelledby="art-h"><div class="wrap"><div class="sec-head" data-rise><h2 class="h2" id="art-h">Блог для бухгалтера и собственника</h2>'
@@ -502,17 +544,15 @@ def render_home(ctx, page):
     ab = page.get("about") or {}
     about = ""
     if ab:
-        paras = "".join("<p>%s</p>" % p for p in ab.get("paragraphs") or [])
-        why = "".join('<li>%s<span>%s</span></li>' % (mk(), re.sub(r'<span class="ink">(.*?)</span>', r"<b>\1</b>", a)) for a, b in ab.get("why") or [])
-        facts = "".join("<div><dt>%s</dt><dd>%s</dd></div>" % (esc(k), esc(v)) for k, v in page.get("facts") or [])
+        paras = "".join("<p>%s</p>" % esc(p) for p in ab.get("paragraphs") or [])
+        member = '<p class="member">%s</p>' % esc(ab["member"]) if ab.get("member") else ""
         about = ('<section class="sec-band sec-band--sheet cv" id="about" data-tone="light" aria-labelledby="about-h"><div class="wrap about-grid">%s'
-                 '<div class="about-copy"><h2 class="h2" id="about-h">%s</h2>%s<p class="quote">%s</p><dl class="facts">%s</dl>'
-                 '<div class="why"><h3>Почему нас выбирают</h3><ul class="ticks" data-dv>%s</ul></div><p><a class="btn btn-ink" href="/o-kompanii/">О компании подробнее</a></p></div></div></section>\n'
-                 % (figure(ctx, ab.get("photo") or "moscow-stalin-highrise", "Московская улица и высотка на Котельнической набережной", cls="about-ph", sizes="(max-width:1000px) 100vw, 480px", caption="Офис в Москве"),
-                    esc(ab.get("h2") or "Работаем с 2010 года"), paras, esc(ab.get("motto") or "Актуальные решения — наше искусство"), facts, why))
+                 '<div class="about-copy"><h2 class="h2 about-h" id="about-h">%s</h2><p class="tagline">%s</p>%s%s'
+                 '<p><a class="btn btn-ink" href="/o-kompanii/">О нас подробнее</a></p></div></div></section>\n'
+                 % (collage(ctx, "collage about-col"), esc(ab.get("h2") or "ИНКОМ-АУДИТ"), esc(ab.get("motto") or "Актуальные решения — наше искусство"), paras, member))
 
     extra, _ = doc_sections(ctx, page)
-    body = hero + directory + situations + ledger(ctx) + check + industries(ctx, page.get("industries") or INDUSTRIES) + process + articles + about + doc_block(ctx, page, extra, [], with_toc=False) + zayavka(page)
+    body = hero + directory + check + industries(ctx, page.get("industries") or INDUSTRIES8) + process + articles + about + doc_block(ctx, page, extra, [], with_toc=False) + zayavka(page)
     return base(ctx, page, body, tone="dark", pre=preload(ctx, h.get("photo") or "moscow-city-sunset", "100vw"))
 
 
@@ -526,6 +566,7 @@ def render_404(ctx):
 
 
 def render(page, ctx):
+    ctx = dict(ctx, page=page)
     k = page["kind"]
     if k == "home":
         return render_home(ctx, page)

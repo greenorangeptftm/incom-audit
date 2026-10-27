@@ -27,7 +27,7 @@ DEFAULT_PHOTOS = (ROOT.parent / "incom-redesign" / "site" / "assets" / "photos")
 
 KINDS = {"home", "hub", "service", "page", "article", "blog", "contacts", "order"}
 SECTION_TYPES = {"prose", "facts", "steps", "cards", "table", "checklist", "checker",
-                 "calculator", "photo", "quote", "articles", "cta"}
+                 "calculator", "photo", "quote", "articles", "cta", "why"}
 
 
 # ---------- фотографии ----------
@@ -109,7 +109,7 @@ def validate(page):
         if s["type"] not in SECTION_TYPES:
             p.append("секция %d: неизвестный type %r (допустимо: %s)" % (i + 1, s["type"], ", ".join(sorted(SECTION_TYPES))))
         need = {"prose": ["html"], "facts": ["items"], "steps": ["items"], "cards": ["items"], "table": ["head", "rows"],
-                "checklist": ["items"], "photo": ["photo"], "quote": ["text"], "cta": ["text", "button"]}.get(s["type"], [])
+                "checklist": ["items"], "photo": ["photo"], "quote": ["text"], "cta": ["text", "button"], "why": ["items"]}.get(s["type"], [])
         for k in need:
             if k not in s:
                 p.append("секция %d (%s): нет поля %r" % (i + 1, s["type"], k))
@@ -161,6 +161,109 @@ def expand_photos(html, ctx, templates):
     return re.sub(r'<img\b([^>]*\bdata-photo="[^"]+"[^>]*)>', repl, html)
 
 
+# ---------- правила клиента: без «ё», без лишних точек ----------
+INLINE = {"a", "span", "small", "strong", "em", "b", "i", "abbr", "time", "cite", "code", "sup", "sub", "u", "s", "mark", "q",
+          "svg", "path", "use", "g", "circle", "rect", "img", "input", "select", "option", "textarea"}
+SKIP_TAGS = ("script", "style", "pre", "textarea")
+ABBR = {"г", "гг", "руб", "млн", "млрд", "тыс", "ул", "д", "корп", "стр", "ст", "п", "пп", "ч", "т", "кв", "им", "коп", "см", "пр", "др", "тел", "e", "ex", "no", "vs"}
+TOKEN_RE = re.compile(r"(<!--.*?-->|<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<pre\b[^>]*>.*?</pre>|<textarea\b[^>]*>.*?</textarea>|<[^>]+>)", re.S)
+ATTR_RE = re.compile(r'\b(alt|title|placeholder|aria-label|content)="([^"]*)"')
+WORD_RE = re.compile(r"[\wа-яёА-ЯЁ№]+$")
+OPENER = "«„(\"'*¹²³"
+
+
+def _yo(t):
+    return t.replace("ё", "е").replace("Ё", "Е")
+
+
+def _keeps_sentence(nxt):
+    """Дальше идёт новое предложение: заглавная буква, цифра или открывающая кавычка."""
+    c = nxt.lstrip()[:1]
+    return bool(c) and (c.isupper() or c.isdigit() or c in OPENER)
+
+
+def _strip_trailing_period(text):
+    t = text.rstrip()
+    if not t.endswith(".") or t.endswith("..") or t.endswith("…"):
+        return text
+    m = WORD_RE.search(t[:-1])
+    if m and m.group(0).lower() in ABBR:
+        return text
+    return t[:-1] + text[len(t):]
+
+
+def _tag_name(tok):
+    m = re.match(r"</?\s*([a-zA-Z][a-zA-Z0-9]*)", tok)
+    return m.group(1).lower() if m else ""
+
+
+def finalize_text(html):
+    """Тема «Сверка»: заменяет «ё» на «е» и убирает точки в конце текстовых блоков.
+    Точка остаётся, если за ней (сквозь строчные теги) идёт новое предложение с заглавной буквы, цифры или кавычки,
+    а также после сокращений (г., руб., ул., д., ст., т. д.) и внутри чисел/многоточий."""
+    toks = TOKEN_RE.split(html)
+    n = len(toks)
+
+    def next_text(k):
+        # что идёт после токена k: ('text', фрагмент) | ('block', None) | ('end', None)
+        for j in range(k + 1, n):
+            tk = toks[j]
+            if not tk:
+                continue
+            if tk.startswith("<"):
+                if tk.startswith("<!--"):
+                    continue
+                name = _tag_name(tk)
+                if name in INLINE:
+                    continue
+                return "block", None
+            if tk.strip():
+                return "text", tk
+        return "end", None
+
+    out = []
+    for k, tk in enumerate(toks):
+        if not tk:
+            continue
+        if tk.startswith("<"):
+            if tk.startswith("<!--"):
+                out.append(_yo(tk))
+            elif tk.lower().startswith(("<script", "<style", "<pre", "<textarea")):
+                out.append(_yo(tk) if 'application/ld+json' in tk[:120] else tk)
+            else:
+                out.append(ATTR_RE.sub(lambda m: '%s="%s"' % (m.group(1), _strip_trailing_period(_yo(m.group(2)))), tk))
+            continue
+        t = _yo(tk)
+        if "." in t:
+            res, i = [], 0
+            while i < len(t):
+                c = t[i]
+                if c != ".":
+                    res.append(c); i += 1; continue
+                # многоточие — целиком
+                if t[i:i + 3] == "...":
+                    res.append("..."); i += 3; continue
+                after = t[i + 1:]
+                prev = "".join(res)
+                word = WORD_RE.search(prev)
+                keep = False
+                if after and not after[0].isspace():
+                    keep = True                       # 31.12, т.д, 2.5 — точка внутри слова/числа
+                elif word and word.group(0).lower() in ABBR:
+                    keep = True
+                elif after.strip():
+                    keep = _keeps_sentence(after)
+                else:
+                    kind, nxt = next_text(k)
+                    keep = kind == "text" and _keeps_sentence(nxt)
+                if keep:
+                    res.append(".")
+                i += 1
+            t = "".join(res)
+        out.append(t)
+    return "".join(out)
+
+
 def clean_dir(out):
     if out.exists():
         for child in out.iterdir():
@@ -210,6 +313,8 @@ def build(theme, out, site_url, photos_dir, noindex):
         html = templates.render(page, ctx)
         html = expand_photos(html, ctx, templates)
         html = rewrite_links(html, root)
+        if theme == "sverka":
+            html = finalize_text(html)
         used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.jpg', html))
         target = out / page["path"] / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -226,6 +331,8 @@ def build(theme, out, site_url, photos_dir, noindex):
         ctx = dict(site_url=site_url, assets_url=assets_url, noindex=True, root="", theme=theme,
                    photo_prefix=photo_rel, photos=photos, pages=pages, by_path=by_path, articles=articles, today=today, defs=defs_svg)
         html = rewrite_links(templates.render_404(ctx), "")
+        if theme == "sverka":
+            html = finalize_text(html)
         used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.jpg', html))
         (out / "404.html").write_text(html, encoding="utf-8")
 

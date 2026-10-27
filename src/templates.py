@@ -9,8 +9,8 @@ PHONE_HREF = "tel:+74991308018"
 MAIL = "help@incom-consult.ru"
 ORG = "ООО «Инком-Аудит»"
 
-NAV = [("Аудит", "/audit/"), ("МСФО", "/msfo/"), ("Бухучёт", "/buhgalterskie-uslugi/"), ("Консалтинг", "/konsalting/"),
-       ("Блог", "/blog/"), ("О компании", "/o-kompanii/"), ("Контакты", "/kontakty/")]
+NAV = [("Аудит", "/audit/"), ("МСФО", "/msfo/"), ("Бухучет", "/buhgalterskie-uslugi/"), ("Консалтинг", "/konsalting/"),
+       ("Блог", "/blog/"), ("О нас", "/o-kompanii/"), ("Контакты", "/kontakty/")]
 
 # Страницы, на которые ведут меню и подвал. Пишутся другими модулями; сборщик предупредит, если файла ещё нет.
 EXPECTED_PAGES = [
@@ -21,10 +21,11 @@ EXPECTED_PAGES = [
     ("audit/zastroyshchikov/", "Аудит застройщиков"),
     ("audit/nalogovyj/", "Налоговый аудит"),
     ("audit/iniciativnyj/", "Инициативный аудит"),
+    ("audit/due-diligence/", "Дью дилидженс"),
     ("msfo/", "МСФО"),
     ("buhgalterskie-uslugi/", "Бухгалтерские услуги"),
     ("konsalting/", "Консалтинг"),
-    ("o-kompanii/", "О компании"),
+    ("o-kompanii/", "О нас"),
     ("kontakty/", "Контакты"),
     ("zakazat-audit/", "Заказать аудит"),
     ("blog/", "Блог"),
@@ -38,15 +39,16 @@ FOOTER_SERVICES = [
     ("Аудит застройщиков", "/audit/zastroyshchikov/"),
     ("Налоговый аудит", "/audit/nalogovyj/"),
     ("Инициативный аудит", "/audit/iniciativnyj/"),
-    ("Отчётность по МСФО", "/msfo/"),
+    ("Дью дилидженс", "/audit/due-diligence/"),
+    ("Подготовка отчетности по МСФО", "/msfo/"),
     ("Бухгалтерские услуги", "/buhgalterskie-uslugi/"),
     ("Консалтинг", "/konsalting/"),
 ]
 FOOTER_COMPANY = [
-    ("О компании", "/o-kompanii/"),
+    ("О нас", "/o-kompanii/"),
     ("Блог", "/blog/"),
     ("Заказать аудит", "/zakazat-audit/"),
-    ("Нужен ли нам аудит?", "/#check"),
+    ("Критерии обязательного аудита", "/#check"),
     ("Контакты", "/kontakty/"),
 ]
 
@@ -75,7 +77,7 @@ def esc(s):
 
 
 def slug(s, i):
-    t = re.sub(r"[^a-z0-9а-яё]+", "-", str(s).lower()).strip("-")
+    t = re.sub(r"[^a-z0-9а-я]+", "-", str(s).lower().replace("ё", "е")).strip("-")
     return t[:40] or "sec-%d" % i
 
 
@@ -158,7 +160,7 @@ def jsonld(obj):
 def org_obj(ctx):
     return {"@type": "Organization", "name": ORG, "alternateName": "Инком-Аудит", "url": ctx["site_url"] + "/",
             "logo": ctx["assets_url"] + "logo/incom-mark.svg", "telephone": PHONE, "email": MAIL,
-            "address": {"@type": "PostalAddress", "addressLocality": "Москва", "addressCountry": "RU"}}
+            "address": {"@type": "PostalAddress", "streetAddress": "ул. Твардовского, д. 2, корп. 5", "postalCode": "123458", "addressLocality": "Москва", "addressCountry": "RU"}}
 
 
 def head_jsonld(ctx, page):
