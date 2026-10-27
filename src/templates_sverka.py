@@ -218,8 +218,8 @@ def article_cards(ctx, limit=3, exclude=None):
         if len(cards) >= limit:
             break
         tags = "".join('<span class="tag">%s</span>' % esc(t) for t in (a.get("tags") or [])[:3])
-        cards.append('<a class="post" href="/%s"><p class="post-date">%s · %s</p><h3>%s</h3><p>%s</p><div class="post-tags">%s</div><span class="link">Читать <span class="arr" aria-hidden="true">→</span></span></a>'
-                     % (a["path"], ru_date(a.get("date", "")), esc(a.get("reading") or "статья"), esc(a["h1"]), esc(a.get("excerpt", "")), tags))
+        cards.append('<a class="post" href="/%s"><p class="post-date">%s</p><h3>%s</h3><p>%s</p><div class="post-tags">%s</div><span class="link">Читать <span class="arr" aria-hidden="true">→</span></span></a>'
+                     % (a["path"], ru_date(a.get("date", "")), esc(a["h1"]), esc(a.get("excerpt", "")), tags))
     return cards
 
 
@@ -251,7 +251,7 @@ def render_section(ctx, s, i):
         return '<section class="sec sec-wide" id="%s">%s</section>' % (sid, calculator(s)), sid, s.get("h2") or "Стоимость"
     if t == "cta":
         sid = s.get("id") or "cta-%d" % i
-        body = '<div class="cta-box"><h2>%s</h2><p>%s</p>%s</div>' % (esc(s.get("h2") or "Обсудим вашу задачу"), esc(s["text"]), btn(s["button"][0], s["button"][1]))
+        body = '<div class="cta-box"><h2>%s</h2>%s%s</div>' % (esc(s.get("h2") or "Обсудим вашу задачу"), ('<p>%s</p>' % esc(s["text"])) if s.get("text") else "", btn(s["button"][0], s["button"][1]))
         return '<section class="sec" id="%s">%s</section>' % (sid, body), sid, None
     if t == "photo":
         sid = s.get("id") or "photo-%d" % i
@@ -382,8 +382,6 @@ def render_article(ctx, page):
     dl = ['<time datetime="%s">%s</time>' % (page["date"], ru_date(page["date"]))]
     if page.get("updated") and page["updated"] != page["date"]:
         dl.append("обновлено " + ru_date(page["updated"]))
-    if page.get("reading"):
-        dl.append(esc(page["reading"]))
     dl.append(esc(page.get("author") or "Аудиторы «Инком-Аудит»"))
     tags = "".join('<span class="tag">%s</span>' % esc(t) for t in (page.get("tags") or []))
     ph = figure(ctx, page["photo"], page.get("photo_alt") or page["h1"], cls="ph art-ph", sizes="(max-width: 900px) 100vw, 800px", lazy=False, tick=True) if page.get("photo") else ""

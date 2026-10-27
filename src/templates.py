@@ -354,7 +354,7 @@ def render_section(ctx, s, i):
         return '<section class="sec sec--wide" id="%s">%s</section>' % (s.get("id") or "calc-sec", calculator(s)), s.get("id") or "calc-sec", s.get("h2") or "Стоимость"
     if t == "cta":
         body = ('<div class="cta-box"><h2>%s</h2><p>%s</p>%s</div>'
-                % (esc(s.get("h2") or "Обсудим вашу задачу"), esc(s["text"]), btn(s["button"][0], s["button"][1], "white")))
+                % (esc(s.get("h2") or "Обсудим вашу задачу"), esc(s.get("text", "")), btn(s["button"][0], s["button"][1], "white")))
         sid = s.get("id") or "cta-%d" % i
         return '<section class="sec" id="%s">%s</section>' % (sid, body), sid, None
     if t == "photo":

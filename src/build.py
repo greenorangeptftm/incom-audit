@@ -109,7 +109,7 @@ def validate(page):
         if s["type"] not in SECTION_TYPES:
             p.append("секция %d: неизвестный type %r (допустимо: %s)" % (i + 1, s["type"], ", ".join(sorted(SECTION_TYPES))))
         need = {"prose": ["html"], "facts": ["items"], "steps": ["items"], "cards": ["items"], "table": ["head", "rows"],
-                "checklist": ["items"], "photo": ["photo"], "quote": ["text"], "cta": ["text", "button"], "why": ["items"]}.get(s["type"], [])
+                "checklist": ["items"], "photo": ["photo"], "quote": ["text"], "cta": ["button"], "why": ["items"]}.get(s["type"], [])
         for k in need:
             if k not in s:
                 p.append("секция %d (%s): нет поля %r" % (i + 1, s["type"], k))

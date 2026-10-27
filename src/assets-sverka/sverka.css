@@ -439,7 +439,7 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 .strip dd{font:600 clamp(15.5px,1.2vw,18px)/1.3 var(--f);letter-spacing:-.01em}
 .strip dd.pen{color:var(--pen-text)}
 .strip[style*="--n:1"]{grid-template-columns:1fr}
-@media (max-width:1100px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.strip>div:nth-child(2n+1){padding-left:0;border-left:0}}
+@media (max-width:1100px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.strip>div:nth-child(2n+1){padding-left:0;border-left:0}.strip[style*="--n:3"]>div:nth-child(3){grid-column:1/-1}}
 @media (max-width:900px){.phero-in{grid-template-columns:1fr;align-items:start}.phero-ph{aspect-ratio:16/9;max-height:none}}
 @media (max-width:760px){.phero{padding-top:calc(env(safe-area-inset-top,0px) + 92px)}.phero-cta .btn{flex:1 1 100%}}
 
