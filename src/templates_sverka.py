@@ -518,8 +518,8 @@ def render_home(ctx, page):
         '<section class="hero" id="top" data-tone="dark" aria-labelledby="hero-h">\n  %s\n  <div class="hero-shade" aria-hidden="true"></div>\n'
         '  <div class="wrap hero-in">\n    <p class="hero-kicker">%s</p>\n    <h1 id="hero-h">%s</h1>\n%s    <p class="hero-lead">%s</p>\n'
         '    <div class="hero-cta">%s%s</div>\n  </div>\n  <div class="wrap"><dl class="hero-strip">'
-        '<div><dt>Работаем</dt><dd>с&nbsp;2010 года</dd></div><div><dt>Реализовано</dt><dd>300+ проектов</dd></div>'
-        '<div><dt>Член СРО ААС «Содружество»</dt><dd>ОРНЗ <span class="nb">12006082980</span></dd></div><div><dt>Стоимость аудита</dt><dd>от&nbsp;40&nbsp;000&nbsp;₽</dd></div></dl></div>\n</section>\n'
+        '<div><dt>Услуги</dt><dd>аудит, МСФО, консалтинг, бухучет</dd></div><div><dt>Опыт</dt><dd>300+ проектов с&nbsp;2010 года</dd></div>'
+        '<div><dt>Отрасли</dt><dd>Производство, услуги, сельское хозяйство, строительство, торговля, IT и&nbsp;др.</dd></div><div><dt>Членство в&nbsp;СРО</dt><dd>СРО ААС, ОРНЗ <span class="nb">12006082980</span></dd></div></dl></div>\n</section>\n'
         % (hero_img, esc(h.get("kicker") or "Аудиторская компания • с 2010 года • Работаем по всей России"), h1, tag, h.get("sub") or page.get("lead", ""),
            btn(*(h.get("cta") or ("Узнать стоимость", "#zayavka"))), btn(*(h.get("cta2") or ("Обязательный аудит", "/audit/obyazatelnyj/")), "glass", arrow=False)))
 
