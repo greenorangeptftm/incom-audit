@@ -190,7 +190,7 @@ def checker(sec=None, h2_cls="h2", self_page=False):
 def calculator(sec=None):
     sec = sec or {}
     h2 = esc(sec.get("h2") or "Из чего складывается стоимость аудита")
-    intro = esc(sec.get("intro") or "Укажите основные параметры компании. Калькулятор покажет базовую ставку и то, что увеличит объём работы. Точную цену назовём после оценки объёма.")
+    intro = esc(sec.get("intro") or "Укажите основные параметры компании. Калькулятор покажет, что увеличит объём работы. Точную цену назовём после оценки объёма.")
     return (
         '<div class="calcwrap">\n  <div class="check-intro"><h2 class="h2s" id="calc-h">%s</h2><p class="lead">%s</p></div>\n'
         '  <form class="wp calc" id="calcForm" novalidate aria-labelledby="calc-h">\n'
@@ -200,11 +200,11 @@ def calculator(sec=None):
         '      <div class="fld"><label for="c-ast">Активы на 31 декабря</label><div class="wp-field"><input id="c-ast" name="ast" inputmode="decimal" autocomplete="off" value="150"><span class="unit">млн ₽</span></div></div>\n'
         '      <div class="fld"><label for="c-ent">Юридических лиц</label><select id="c-ent" name="ent"><option value="1">одно</option><option value="2">два</option><option value="3">три</option><option value="5">четыре и больше</option></select></div>\n'
         '      <div class="fld"><label for="c-type">Вид аудита</label><select id="c-type" name="type"><option value="must">обязательный аудит</option><option value="init">инициативный аудит</option><option value="express">экспресс-аудит</option>'
-        '<option value="dev">аудит застройщика (214-ФЗ)</option><option value="tax">налоговый аудит</option><option value="ifrs">аудит отчётности по МСФО</option><option value="dd">due diligence</option></select></div>\n'
+        '<option value="dev">аудит застройщика (214-ФЗ)</option><option value="tax">налоговый аудит</option><option value="ifrs">аудит отчётности по МСФО</option></select></div>\n'
         '      <div class="fld"><label for="c-ind">Отрасль</label><select id="c-ind" name="ind"><option value="trade">торговля</option><option value="build">строительство</option><option value="prod">производство</option><option value="lease">лизинг</option><option value="it">IT</option><option value="other">другая</option></select></div>\n'
         '      <div class="fld"><label for="c-term">Сроки</label><select id="c-term" name="term"><option value="normal">обычные</option><option value="fast">сжатые</option></select></div>\n'
         '    </div>\n    <div class="calc-act"><button class="btn btn-ink" type="submit">Оценить</button></div>\n'
-        '    <div class="calc-out" id="calcOut" aria-live="polite"><p class="lbl">Базовая ставка</p><p class="calc-price" id="calcPrice">от 40&nbsp;000&nbsp;₽</p>\n'
+        '    <div class="calc-out" id="calcOut" aria-live="polite"><p class="lbl">Объём работ</p><p class="calc-price" id="calcPrice">стандартный</p>\n'
         '      <ul class="calc-factors" id="calcFactors"><li class="na">Нажмите «Оценить», чтобы увидеть, что влияет на цену в вашем случае</li></ul>\n'
         '      <p class="prelim">Это ориентир · точную стоимость и сроки зафиксируем в коммерческом предложении</p>\n'
         '      <a class="btn btn-pen" href="#zayavka">Получить точный расчёт <span class="arr" aria-hidden="true">→</span></a></div>\n  </form>\n</div>\n' % (h2, intro))

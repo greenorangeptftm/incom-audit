@@ -322,6 +322,19 @@ def build(theme, out, site_url, photos_dir, noindex):
         for w in warnings_for(page):
             warns.append("%s: %s" % (page["_file"], w))
 
+    # старые адреса: заглушка с переадресацией на новый путь (ключ redirect_from у страницы)
+    for page in pages:
+        for old in page.get("redirect_from") or []:
+            new_abs = "%s/%s" % (site_url, page["path"])
+            rel = rel_root(old) + page["path"]
+            stub = ('<!doctype html>\n<html lang="ru"><head><meta charset="utf-8"><title>Страница переехала</title>'
+                    '<meta name="robots" content="noindex"><link rel="canonical" href="%s">'
+                    '<meta http-equiv="refresh" content="0; url=%s"><script>location.replace("%s")</script></head>'
+                    '<body><p>Страница переехала: <a href="%s">%s</a></p></body></html>\n' % (new_abs, rel, rel, rel, new_abs))
+            target = out / old / "index.html"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(stub, encoding="utf-8")
+
     for path, label in templates.EXPECTED_PAGES:
         if path not in by_path:
             warns.append("ожидаемая страница ещё не написана: /%s (%s) — ссылки на неё уже стоят" % (path, label))
