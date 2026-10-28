@@ -16,6 +16,15 @@
   var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
   var listen = function (mq, fn) { if (mq.addEventListener) mq.addEventListener('change', fn); else mq.addListener(fn); };
 
+  /* ——— силуэты на первом экране: проявляются, когда картинка загрузилась ——— */
+  var duo = q('.hero-duo');
+  if (duo) {
+    var duoIn = function () { requestAnimationFrame(function () { duo.classList.add('is-in'); }); };
+    if (RM) duo.classList.add('is-in');
+    else if (duo.complete && duo.naturalWidth) setTimeout(duoIn, 200);
+    else { duo.addEventListener('load', function () { setTimeout(duoIn, 120); }); duo.addEventListener('error', function () { duo.remove(); }); }
+  }
+
   /* ——— стеклянная шапка ——— */
   var lg = q('#lg'), bar = lg && q('.lg__bar', lg), links = lg && q('.lg__links', lg), lens = lg && q('.lg__lens', lg);
   var navLinks = links ? qa('a', links) : [];

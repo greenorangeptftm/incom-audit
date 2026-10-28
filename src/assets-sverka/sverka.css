@@ -152,6 +152,12 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 .hero{position:relative;isolation:isolate;overflow:hidden;color:#fff;background:#0B2A3B;min-height:clamp(600px,88vh,860px);display:flex;flex-direction:column;justify-content:flex-end}
 .hero-img{position:absolute;inset:0;z-index:-2}
 .hero-img img{width:100%;height:100%;object-fit:cover}
+/* силуэты привязаны к фото: фото тянется по ширине (cover, позиция 60% 42%), поэтому голова мужчины всегда
+   попадает в светлое зарево между башнями — по горизонтали 67.5% ширины, по вертикали 29.7% высоты фото */
+.hero-duo{--dh:min(31vw,540px);position:absolute;z-index:-1;height:var(--dh);width:auto;max-width:none;top:calc(42% - 8.19vw - .101 * var(--dh));left:calc(67.5% - .3373 * var(--dh));pointer-events:none;user-select:none}
+.js .hero-duo{opacity:0;transform:translate3d(0,14px,0);transition:opacity 1.3s var(--ease),transform 1.6s var(--ease)}
+.js .hero-duo.is-in{opacity:1;transform:none}
+@media (max-width:999px),(max-aspect-ratio:5/4){.hero-duo{display:none}}
 .hero-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(5,28,41,.86) 0%,rgba(5,28,41,.62) 36%,rgba(5,28,41,.12) 68%,rgba(5,28,41,0) 100%),linear-gradient(0deg,rgba(5,28,41,.9) 0%,rgba(5,28,41,.35) 30%,rgba(5,28,41,0) 52%),linear-gradient(180deg,rgba(5,28,41,.5) 0%,rgba(5,28,41,0) 20%)}
 .hero>.wrap{width:100%}
 .hero-in{padding-top:136px;padding-bottom:36px}
