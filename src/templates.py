@@ -21,10 +21,10 @@ EXPECTED_PAGES = [
     ("audit/zastroyshchikov/", "Аудит застройщиков"),
     ("audit/nalogovyj/", "Налоговый аудит"),
     ("audit/iniciativnyj/", "Инициативный аудит"),
+    ("audit/due-diligence/", "Дью дилидженс"),
     ("msfo/", "МСФО"),
     ("buhgalterskie-uslugi/", "Бухгалтерские услуги"),
     ("konsalting/", "Консалтинг"),
-    ("konsalting/due-diligence/", "Дью дилидженс"),
     ("o-kompanii/", "О нас"),
     ("kontakty/", "Контакты"),
     ("zakazat-audit/", "Заказать аудит"),
@@ -39,10 +39,10 @@ FOOTER_SERVICES = [
     ("Аудит застройщиков", "/audit/zastroyshchikov/"),
     ("Налоговый аудит", "/audit/nalogovyj/"),
     ("Инициативный аудит", "/audit/iniciativnyj/"),
+    ("Дью дилидженс", "/audit/due-diligence/"),
     ("Подготовка отчетности по МСФО", "/msfo/"),
     ("Бухгалтерские услуги", "/buhgalterskie-uslugi/"),
     ("Консалтинг", "/konsalting/"),
-    ("Дью дилидженс", "/konsalting/due-diligence/"),
 ]
 FOOTER_COMPANY = [
     ("О нас", "/o-kompanii/"),

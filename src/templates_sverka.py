@@ -118,7 +118,7 @@ def footer():
         '        <p>%s. Член СРО ААС «Содружество», ОРНЗ 12006082980. Аудит, МСФО, бухгалтерские и юридические услуги по всей России. Офис в Москве.</p>\n'
         '      </div>\n      <div><h4>Услуги</h4><ul>%s</ul></div>\n      <div><h4>Компания</h4><ul>%s</ul></div>\n'
         '      <div><h4>Контакты</h4><ul><li><a href="%s">%s</a></li><li><a href="mailto:%s">%s</a></li><li>123458, Москва, ул. Твардовского, д. 2, корп. 5</li><li>Офис в Москве · работаем по всей России</li></ul></div>\n'
-        '    </div>\n    <div class="legal"><span>© 2010–2026 %s</span><span>Член СРО ААС «Содружество» · ОРНЗ 12006082980 · <a href="/o-kompanii/raskrytiya/">Раскрытие информации</a></span></div>\n  </div>\n</footer>\n'
+        '    </div>\n    <div class="legal"><span>© 2010–2026 %s</span><span>Член СРО ААС «Содружество» · ОРНЗ 12006082980 · <a href="/info/">Раскрытие информации</a></span></div>\n  </div>\n</footer>\n'
         % (mark("ft", lockup=True), ORG, svc, comp, PHONE_HREF, PHONE, MAIL, MAIL, ORG))
 
 

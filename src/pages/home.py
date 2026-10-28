@@ -21,10 +21,10 @@ PAGE = dict(
         ("Обязательный аудит", "/audit/obyazatelnyj/"),
         ("Инициативный аудит", "/audit/iniciativnyj/"),
         ("Налоговый аудит", "/audit/nalogovyj/"),
+        ("Дью дилидженс", "/audit/due-diligence/"),
         ("Подготовка отчетности по МСФО", "/msfo/"),
         ("Бухгалтерские услуги", "/buhgalterskie-uslugi/"),
         ("Консалтинг", "/konsalting/"),
-        ("Дью дилидженс", "/konsalting/due-diligence/"),
     ],
     process_h2="Как мы строим нашу работу",
     process=[
