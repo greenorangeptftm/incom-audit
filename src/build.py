@@ -376,6 +376,8 @@ def build(theme, out, site_url, photos_dir, noindex):
     # sitemap.xml
     items = []
     for page in sorted(pages, key=lambda p: p["path"]):
+        if page.get("sitemap") is False or page.get("noindex"):
+            continue
         last = (page.get("updated") or page.get("date") or today) if page["kind"] == "article" else today
         prio = {"home": "1.0", "service": "0.8", "hub": "0.8", "article": "0.6"}.get(page["kind"], "0.5")
         items.append("  <url><loc>%s/%s</loc><lastmod>%s</lastmod><priority>%s</priority></url>" % (site_url, page["path"], last, prio))

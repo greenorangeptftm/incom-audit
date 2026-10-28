@@ -118,7 +118,7 @@ def footer():
         '        <p>%s. Член СРО ААС «Содружество», ОРНЗ 12006082980. Аудит, МСФО, бухгалтерские и юридические услуги по всей России. Офис в Москве.</p>\n'
         '      </div>\n      <div><h4>Услуги</h4><ul>%s</ul></div>\n      <div><h4>Компания</h4><ul>%s</ul></div>\n'
         '      <div><h4>Контакты</h4><ul><li><a href="%s">%s</a></li><li><a href="mailto:%s">%s</a></li><li>123458, Москва, ул. Твардовского, д. 2, корп. 5</li><li>Офис в Москве · работаем по всей России</li></ul></div>\n'
-        '    </div>\n    <div class="legal"><span>© 2010–2026 %s</span><span>Член СРО ААС «Содружество» · ОРНЗ 12006082980</span></div>\n  </div>\n</footer>\n'
+        '    </div>\n    <div class="legal"><span>© 2010–2026 %s</span><span>Член СРО ААС «Содружество» · ОРНЗ 12006082980 · <a href="/o-kompanii/raskrytiya/">Раскрытие информации</a></span></div>\n  </div>\n</footer>\n'
         % (mark("ft", lockup=True), ORG, svc, comp, PHONE_HREF, PHONE, MAIL, MAIL, ORG))
 
 
@@ -129,7 +129,8 @@ def mbar():
 def base(ctx, page, body, tone="light", pre=""):
     url = ctx["site_url"] + "/" + page["path"]
     og_img = T.photo_url(ctx, page.get("photo") or "moscow-city-sunset")
-    robots = '<meta name="robots" content="noindex, nofollow">\n' if ctx["noindex"] else ""
+    robots = ('<meta name="robots" content="noindex, nofollow">\n' if ctx["noindex"]
+              else '<meta name="robots" content="noindex, follow">\n' if page.get("noindex") else "")
     return (
         '<!doctype html>\n<html lang="ru">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n%s'
@@ -402,7 +403,8 @@ def hero_preload(ctx, page):
 
 def render_doc(ctx, page):
     body, toc = doc_sections(ctx, page)
-    return base(ctx, page, page_hero(ctx, page) + doc_block(ctx, page, body, toc) + related_html(page) + zayavka(page), pre=hero_preload(ctx, page))
+    form = "" if page.get("no_form") else zayavka(page)
+    return base(ctx, page, page_hero(ctx, page) + doc_block(ctx, page, body, toc) + related_html(page) + form, pre=hero_preload(ctx, page))
 
 
 ADDRESS = "123458, Москва, ул. Твардовского, д. 2, корп. 5"
