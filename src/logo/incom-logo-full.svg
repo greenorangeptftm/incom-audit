@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Income Audit">
+  <!-- Full original lockup: the mark with "Income Audit" set inside the white counter, as on the favicon -->
+  <defs>
+    <linearGradient id="il-blue" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0A4384"/>
+      <stop offset="1" stop-color="#155A9F"/>
+    </linearGradient>
+    <linearGradient id="il-grey" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7C96A6"/>
+      <stop offset="1" stop-color="#B9C9C9"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#il-blue)" d="M37 6.75A58 58 0 0 0 37 113.25Z"/>
+  <path fill="url(#il-grey)" d="M68 117.45V77A37 37 0 0 0 90.75 10.82A58 58 0 0 1 68 117.45Z"/>
+  <g fill="#17295A" font-family="Arial, Helvetica, sans-serif" font-weight="700">
+    <text x="41.5" y="31" font-size="14.5" textLength="58" lengthAdjust="spacingAndGlyphs">Income</text>
+    <text x="41.5" y="54" font-size="14.5" textLength="42" lengthAdjust="spacingAndGlyphs">Audit</text>
+  </g>
+</svg>

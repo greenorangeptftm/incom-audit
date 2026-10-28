@@ -23,7 +23,9 @@ from pathlib import Path
 
 SRC = Path(__file__).resolve().parent            # incom-audit/src
 ROOT = SRC.parent                                # incom-audit/
-DEFAULT_PHOTOS = (ROOT.parent / "incom-redesign" / "site" / "assets" / "photos")
+# Готовые (тонированные) фото лежат в src/photos (их делает src/tone.py из натуральных исходников);
+# если папки нет, берем натуральные из соседнего репозитория макетов
+DEFAULT_PHOTOS = (SRC / "photos") if (SRC / "photos").is_dir() else (ROOT.parent / "incom-redesign" / "site" / "assets" / "photos")
 
 KINDS = {"home", "hub", "service", "page", "article", "blog", "contacts", "order"}
 SECTION_TYPES = {"prose", "facts", "steps", "cards", "table", "checklist", "checker",
@@ -364,7 +366,7 @@ def build(theme, out, site_url, photos_dir, noindex):
                     shutil.copy2(src, pdir / fn)
                 elif fn.endswith(".jpg") and not fn.endswith("-900.jpg"):
                     warns.append("нет файла фотографии %s" % fn)
-        logo_src = photos_dir.parent / "logo"
+        logo_src = (SRC / "logo") if (SRC / "logo").is_dir() else photos_dir.parent / "logo"
         if logo_src.exists():
             ldir = out / "assets" / "logo"
             ldir.mkdir(parents=True, exist_ok=True)
