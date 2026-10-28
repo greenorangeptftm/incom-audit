@@ -11,7 +11,31 @@ from templates import (esc, slug, ru_date, head_jsonld, PHONE, PHONE_HREF, MAIL,
                        FOOTER_SERVICES, FOOTER_COMPANY, INDUSTRIES, FAVICON, mark)
 
 PROSE_PHOTO_CLS = "ph prose-photo"
-FONTS = "https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;500&family=Onest:wght@400;500;600;700&display=swap"
+# Шрифты лежат на сайте (assets/fonts): без обращения к Google Fonts, основной текст подгружается первым
+FONT_HEAD = ('<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/onest-cyrillic.woff2" crossorigin>\n'
+             '<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/onest-latin.woff2" crossorigin>\n'
+             '<link rel="stylesheet" href="/assets/fonts/fonts.css">\n')
+
+# Иконки кнопок: штрих в стиле пометок аудитора
+ICO = {
+    "phone": '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 3.5h3.2l1.6 4.2-2 1.4a11.5 11.5 0 0 0 6.6 6.6l1.4-2 4.2 1.6v3.2a1.6 1.6 0 0 1-1.7 1.5A15.6 15.6 0 0 1 4 5.2a1.6 1.6 0 0 1 1.5-1.7z"/></svg>',
+    "mail": '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h17v11h-17zM3.5 7l8.5 6 8.5-6"/></svg>',
+    "pin": '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+    "copy": '<svg class="ico ico-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></svg>',
+    "check": '<svg class="ico ico-check" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    "x": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+}
+
+
+def copy_btn(value, target, label="Скопировать", kind="ink"):
+    """Кнопка копирования: обе подписи лежат в одной ячейке, поэтому ширина не прыгает, иконка превращается в галочку."""
+    return ('<button class="btn btn-%s btn-copy" type="button" data-copy="%s" data-target="%s"><span class="ico-sw">%s%s</span>'
+            '<span class="sw"><span>%s</span><span aria-hidden="true">Скопировано</span></span></button>'
+            % (kind, esc(value), target, ICO["copy"], ICO["check"], esc(label)))
+
+
+def ibtn(label, href, icon, kind="pen"):
+    return '<a class="btn btn-%s btn-ico" href="%s">%s<span>%s</span></a>' % (kind, esc(href), ICO[icon], esc(label))
 
 # Пометки аудитора: галочка «сверено», сигма «пересчитано», перпендикуляр «сверено с выпиской», круг «требует внимания»
 TICK = "M4.2 13.2c1.7 1.3 3.4 3.2 4.9 5.6 2.6-6 6.2-10.6 10.9-14.3"
@@ -94,8 +118,7 @@ def footer():
         '        <p>%s. Член СРО ААС «Содружество», ОРНЗ 12006082980. Аудит, МСФО, бухгалтерские и юридические услуги по всей России. Офис в Москве.</p>\n'
         '      </div>\n      <div><h4>Услуги</h4><ul>%s</ul></div>\n      <div><h4>Компания</h4><ul>%s</ul></div>\n'
         '      <div><h4>Контакты</h4><ul><li><a href="%s">%s</a></li><li><a href="mailto:%s">%s</a></li><li>123458, Москва, ул. Твардовского, д. 2, корп. 5</li><li>Офис в Москве · работаем по всей России</li></ul></div>\n'
-        '    </div>\n    <div class="legal"><span>© 2010–2026 %s</span><span>Член СРО ААС «Содружество» · ОРНЗ 12006082980</span></div>\n'
-        '    <p class="credits">Фотографии: Unsplash (свободная лицензия). Макет сайта: формы не отправляются, цифры в примерах условные.</p>\n  </div>\n</footer>\n'
+        '    </div>\n    <div class="legal"><span>© 2010–2026 %s</span><span>Член СРО ААС «Содружество» · ОРНЗ 12006082980</span></div>\n  </div>\n</footer>\n'
         % (mark("ft", lockup=True), ORG, svc, comp, PHONE_HREF, PHONE, MAIL, MAIL, ORG))
 
 
@@ -114,16 +137,14 @@ def base(ctx, page, body, tone="light", pre=""):
         '<meta property="og:type" content="%s">\n<meta property="og:title" content="%s">\n<meta property="og:description" content="%s">\n'
         '<meta property="og:url" content="%s">\n<meta property="og:image" content="%s">\n<meta property="og:locale" content="ru_RU">\n<meta property="og:site_name" content="Инком-Аудит">\n'
         '<meta name="theme-color" content="#0D3C55">\n<link rel="icon" href="%s">\n'
-        '<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
-        '<link rel="stylesheet" href="/assets/sverka.css">\n<link rel="stylesheet" href="%s" media="print" onload="this.media=\'all\'">\n'
-        '<noscript><link rel="stylesheet" href="%s"></noscript>\n%s%s'
+        '%s<link rel="stylesheet" href="/assets/sverka.css">\n%s%s'
         '<!-- Яндекс.Вебмастер: <meta name="yandex-verification" content="…"> -->\n'
         '<!-- Яндекс.Метрика: вставить код счётчика перед </head> -->\n'
-        '</head>\n<body>\n<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s'
+        '</head>\n<body>\n<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s%s'
         '<script src="/assets/sverka.js" defer></script>\n</body>\n</html>\n'
         % (robots, esc(page["title"]), esc(page["description"]), url, "article" if page["kind"] == "article" else "website",
-           esc(page.get("og_title") or page["h1"]), esc(page["description"]), url, og_img, FAVICON, FONTS, FONTS, pre,
-           head_jsonld(ctx, page), header(page, tone), body, footer(), mbar()))
+           esc(page.get("og_title") or page["h1"]), esc(page["description"]), url, og_img, FAVICON, FONT_HEAD, pre,
+           head_jsonld(ctx, page), header(page, tone), body, footer(), mbar(), modal(page)))
 
 
 # ---------- общие блоки ----------
@@ -134,29 +155,50 @@ def strip(items, cls="strip"):
     return '<dl class="%s" style="--n:%d">%s</dl>' % (cls, len(items), cells)
 
 
-def zayavka(page):
-    opts = ["Обязательный аудит", "Инициативный аудит", "Налоговый аудит", "Аудит застройщика по 214-ФЗ", "Дью дилидженс перед сделкой",
-            "Подготовка отчетности по МСФО", "Бухгалтерские услуги", "Консалтинг и споры", "Другое"]
+FORM_TASKS = ["Обязательный аудит", "Инициативный аудит", "Налоговый аудит", "Аудит застройщика по 214-ФЗ", "Дью дилидженс перед сделкой",
+              "Подготовка отчетности по МСФО", "Бухгалтерские услуги", "Консалтинг и споры", "Другое"]
+
+
+def lead_form(page, p="f", cls="form-sheet", heading=True):
+    """Форма заявки. Один и тот же бланк внизу страницы и во всплывающем окне, id полей различаются префиксом."""
     pre = page.get("form_task") or ""
-    options = "".join('<option%s>%s</option>' % (' selected' if o == pre else "", o) for o in opts)
+    options = "".join('<option%s>%s</option>' % (' selected' if o == pre else "", o) for o in FORM_TASKS)
+    h = '      <h3 id="%s-h">Форма обратной связи</h3>\n' % p if heading else ""
+    aria = ' aria-labelledby="%s-h"' % p if heading else ' aria-label="Форма обратной связи"'
+    return (
+        '    <form class="%s" id="%s-form" data-lead novalidate%s>\n%s'
+        '      <div class="fld"><label for="%s-name">Ваше имя*</label><input id="%s-name" name="name" autocomplete="name" required></div>\n'
+        '      <div class="fld"><label for="%s-phone">Телефон*</label><input id="%s-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" required></div>\n'
+        '      <div class="fld"><label for="%s-email">E-mail*</label><input id="%s-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>\n'
+        '      <div class="fld"><label for="%s-company">Наименование компании*</label><input id="%s-company" name="company" autocomplete="organization" required></div>\n'
+        '      <div class="fld"><label for="%s-msg">Сообщение*</label><textarea id="%s-msg" name="message" rows="4" maxlength="500" required></textarea><span class="counter" data-count aria-live="polite">0 / 500</span></div>\n'
+        '      <div class="fld"><label for="%s-task">Задача <span class="opt">необязательно</span></label><select id="%s-task" name="task">%s</select></div>\n'
+        '      <button class="btn btn-pen" type="submit">Отправить заявку <span class="arr" aria-hidden="true">→</span></button>\n'
+        '      <p class="consent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</p>\n'
+        '      <p class="form-msg" role="status" hidden>%s<span class="form-msg__t"></span></p>\n    </form>\n'
+        % (cls, p, aria, h, p, p, p, p, p, p, p, p, p, p, p, p, options, mk()))
+
+
+def zayavka(page):
     return (
         '<section class="contact" id="zayavka" data-tone="dark" aria-labelledby="zayavka-h">\n  <div class="wrap contact-grid">\n'
         '    <div class="contact-l" data-rise>\n      <h2 class="h2 h2-long" id="zayavka-h">Для определения объема и стоимости услуг заполните форму обратной связи или свяжитесь с нами любым удобным способом</h2>\n'
         '      <p class="phone-big" id="phoneTxt">%s</p>\n      <p class="email"><span id="mailTxt">%s</span></p>\n'
-        '      <div class="c-row"><a class="btn btn-white" href="%s">Позвонить</a><button class="btn btn-line" type="button" data-copy="%s" data-target="phoneTxt">Скопировать номер</button></div>\n'
-        '      <p class="geo">Офис в Москве. Работаем по всей России</p>\n    </div>\n'
-        '    <form class="form-sheet" id="leadForm" novalidate aria-labelledby="lead-h">\n'
-        '      <h3 id="lead-h">Форма обратной связи</h3>\n'
-        '      <div class="fld"><label for="f-name">Ваше имя*</label><input id="f-name" name="name" autocomplete="name" required></div>\n'
-        '      <div class="fld"><label for="f-phone">Телефон*</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" required></div>\n'
-        '      <div class="fld"><label for="f-email">E-mail*</label><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>\n'
-        '      <div class="fld"><label for="f-company">Наименование компании*</label><input id="f-company" name="company" autocomplete="organization" required></div>\n'
-        '      <div class="fld"><label for="f-msg">Сообщение*</label><textarea id="f-msg" name="message" rows="4" maxlength="500" required></textarea><span class="counter" id="msgCount" aria-live="polite">0 / 500</span></div>\n'
-        '      <div class="fld"><label for="f-task">Задача <span class="opt">необязательно</span></label><select id="f-task" name="task">%s</select></div>\n'
-        '      <button class="btn btn-pen" type="submit">Отправить заявку <span class="arr" aria-hidden="true">→</span></button>\n'
-        '      <p class="consent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</p>\n'
-        '      <p class="form-msg" id="leadMsg" role="status" hidden>%s<span id="leadMsgText"></span></p>\n    </form>\n  </div>\n</section>\n'
-        % (PHONE, MAIL, PHONE_HREF, PHONE, options, mk()))
+        '      <div class="c-row">%s%s</div>\n'
+        '      <p class="geo">Офис в Москве. Работаем по всей России</p>\n    </div>\n%s  </div>\n</section>\n'
+        % (PHONE, MAIL, ibtn("Позвонить", PHONE_HREF, "phone", "white"), copy_btn(PHONE, "phoneTxt", "Скопировать номер", "line"), lead_form(page, "f")))
+
+
+def modal(page):
+    """Всплывающее окно заявки: открывается кнопками «Узнать стоимость» и «Оставить заявку» вместо прокрутки к форме."""
+    return (
+        '<dialog class="modal" id="modal" aria-labelledby="modal-h">\n  <div class="modal__panel">\n'
+        '    <button class="modal__x" type="button" aria-label="Закрыть">%s</button>\n'
+        '    <div class="modal__side">\n      <p class="kicker kicker--dark">Заявка</p>\n      <h2 class="modal__h" id="modal-h">Узнать стоимость</h2>\n'
+        '      <p class="modal__p">Для определения объема и стоимости услуг заполните форму или свяжитесь с нами любым удобным способом</p>\n'
+        '      <div class="modal__c"><a class="modal__phone" href="%s">%s</a><a class="modal__mail" href="mailto:%s">%s</a></div>\n'
+        '      <p class="modal__geo">Офис в Москве. Работаем по всей России</p>\n    </div>\n%s  </div>\n</dialog>\n'
+        % (ICO["x"], PHONE_HREF, PHONE, MAIL, MAIL, lead_form(page, "m", cls="form-sheet form-sheet--modal", heading=False)))
 
 
 def st(key, state):
@@ -363,17 +405,19 @@ def render_doc(ctx, page):
     return base(ctx, page, page_hero(ctx, page) + doc_block(ctx, page, body, toc) + related_html(page) + zayavka(page), pre=hero_preload(ctx, page))
 
 
+ADDRESS = "123458, Москва, ул. Твардовского, д. 2, корп. 5"
+MAP_URL = "https://yandex.ru/maps/?text=" + "Москва, улица Твардовского, 2к5".replace(" ", "%20")
+
+
 def render_contacts(ctx, page):
     body, toc = doc_sections(ctx, page)
-    info = (
-        '<section class="sec-band" data-tone="light" aria-label="Контакты компании"><div class="wrap cpage">\n'
-        '  <div class="cpage-main"><p class="lbl">Телефон</p><p class="phone-big phone-big--ink" id="phoneTxt">%s</p>'
-        '<div class="c-row"><a class="btn btn-pen" href="%s">Позвонить</a><button class="btn btn-ink" type="button" data-copy="%s" data-target="phoneTxt">Скопировать номер</button></div>\n'
-        '  <p class="lbl">E-mail</p><p class="phone-big phone-big--ink phone-big--sm" id="mailTxt">%s</p>'
-        '<div class="c-row"><a class="btn btn-pen" href="mailto:%s">Написать</a><button class="btn btn-ink" type="button" data-copy="%s" data-target="mailTxt">Скопировать Email</button></div>\n'
-        '  <p class="lbl">Московский офис</p><p class="phone-big phone-big--ink phone-big--sm">123458, Москва, ул. Твардовского, д. 2, корп. 5</p></div>\n'
-        '  <dl class="facts"><div><dt>Организация</dt><dd>%s</dd></div><div><dt>Членство</dt><dd>СРО ААС «Содружество»</dd></div><div><dt>ОРНЗ</dt><dd>12006082980</dd></div></dl>\n'
-        '</div></section>\n' % (PHONE, PHONE_HREF, PHONE, MAIL, MAIL, MAIL, ORG))
+    row = lambda lbl, val, vid, cls, acts: ('<div class="crow"><p class="crow__l">%s</p><p class="crow__v%s" id="%s">%s</p><div class="crow__a">%s</div></div>'
+                                           % (lbl, cls, vid, val, acts))
+    rows = (row("Телефон", PHONE, "cPhone", " crow__v--big", ibtn("Позвонить", PHONE_HREF, "phone") + copy_btn(PHONE, "cPhone"))
+            + row("E-mail", MAIL, "cMail", "", ibtn("Написать", "mailto:" + MAIL, "mail") + copy_btn(MAIL, "cMail"))
+            + row("Офис", ADDRESS, "cAddr", " crow__v--sm", ibtn("На карте", MAP_URL, "pin") + copy_btn(ADDRESS, "cAddr")))
+    info = ('<section class="sec-band csec" data-tone="light" aria-label="Контакты компании"><div class="wrap">'
+            '<div class="csheet" data-rise>%s</div></div></section>\n' % rows)
     return base(ctx, page, page_hero(ctx, page, photo=False) + info + doc_block(ctx, page, body, toc, with_toc=False) + related_html(page) + zayavka(page))
 
 

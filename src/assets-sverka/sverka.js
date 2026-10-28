@@ -257,28 +257,56 @@
   if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { setHH(); onScroll(); });
   window.addEventListener('load', onScroll);
 
-  /* ——— копирование телефона и почты ——— */
+  /* ——— копирование телефона, почты и адреса: подпись и иконка меняются без скачка ширины ——— */
+  var live = d.createElement('span'); live.className = 'sr'; live.setAttribute('aria-live', 'polite'); d.body.appendChild(live);
   qa('[data-copy]').forEach(function (btn) {
-    var label = btn.textContent, timer = 0;
-    var done = function (msg) { btn.textContent = msg; clearTimeout(timer); timer = setTimeout(function () { btn.textContent = label; }, 2000); };
+    var timer = 0;
+    var done = function (ok) {
+      btn.classList.add('is-done'); live.textContent = ok ? 'Скопировано' : 'Текст выделен, нажмите Ctrl+C';
+      clearTimeout(timer); timer = setTimeout(function () { btn.classList.remove('is-done'); live.textContent = ''; }, 2200);
+    };
     var fallback = function () {
       var t = d.getElementById(btn.dataset.target);
       if (t && window.getSelection) { var s = window.getSelection(), rg = d.createRange(); rg.selectNodeContents(t); s.removeAllRanges(); s.addRange(rg); }
-      done('Выделено, скопируйте');
+      done(false);
     };
     btn.addEventListener('click', function () {
-      try { var p = navigator.clipboard && navigator.clipboard.writeText(btn.dataset.copy); if (p && p.then) p.then(function () { done('Скопировано'); }, fallback); else fallback(); }
+      try { var p = navigator.clipboard && navigator.clipboard.writeText(btn.dataset.copy); if (p && p.then) p.then(function () { done(true); }, fallback); else fallback(); }
       catch (err) { fallback(); }
     });
   });
 
-  /* ——— заявка: демо-режим, обязательные поля, счетчик символов ——— */
-  var lead = q('#leadForm');
-  if (lead) {
-    var msg = q('#leadMsg'), msgT = q('#leadMsgText'), msgEl = q('#f-msg'), cnt = q('#msgCount');
-    var req = [['#f-name', function (v) { return !!v.trim(); }], ['#f-phone', function (v) { return v.replace(/\D/g, '').length >= 10; }],
-               ['#f-email', function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()); }], ['#f-company', function (v) { return !!v.trim(); }],
-               ['#f-msg', function (v) { return !!v.trim(); }]];
+  /* ——— вопросы и ответы, оглавление на телефоне: раскрываются и сворачиваются плавно ——— */
+  qa('.faq details, details.toc-m').forEach(function (det) {
+    var sum = q('summary', det), body = sum && sum.nextElementSibling;
+    if (!sum || !body || RM || !det.animate) return;
+    var anim = null, stopBody = function () { body.getAnimations().forEach(function (a) { a.cancel(); }); };
+    sum.addEventListener('click', function (e) {
+      e.preventDefault();
+      var h0 = det.offsetHeight;   /* текущая высота, даже если анимация ещё идёт */
+      if (anim) anim.cancel();
+      stopBody();
+      det.style.overflow = 'hidden';
+      if (det.open && !det.classList.contains('is-closing')) {
+        det.classList.add('is-closing');
+        anim = det.animate([{ height: h0 + 'px' }, { height: sum.offsetHeight + 'px' }], { duration: 280, easing: 'cubic-bezier(.4,0,.2,1)' });
+        body.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'ease-out', fill: 'forwards' });
+        anim.onfinish = function () { det.open = false; det.classList.remove('is-closing'); det.style.overflow = ''; anim = null; stopBody(); };
+      } else {
+        det.classList.remove('is-closing'); det.open = true;
+        anim = det.animate([{ height: h0 + 'px' }, { height: det.scrollHeight + 'px' }], { duration: 340, easing: 'cubic-bezier(.2,.8,.2,1)' });
+        body.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: 70, easing: 'ease-out', fill: 'backwards' });
+        anim.onfinish = function () { det.style.overflow = ''; anim = null; };
+      }
+    });
+  });
+
+  /* ——— заявка: обязательные поля, счетчик символов; бланк внизу страницы и в окне ——— */
+  qa('form[data-lead]').forEach(function (lead) {
+    var msg = q('.form-msg', lead), msgT = q('.form-msg__t', lead), msgEl = lead.elements.message, cnt = q('[data-count]', lead);
+    var req = [['name', function (v) { return !!v.trim(); }], ['phone', function (v) { return v.replace(/\D/g, '').length >= 10; }],
+               ['email', function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()); }], ['company', function (v) { return !!v.trim(); }],
+               ['message', function (v) { return !!v.trim(); }]];
     if (msgEl && cnt) {
       var lim = Number(msgEl.getAttribute('maxlength')) || 500;
       var upd = function () { if (msgEl.value.length > lim) msgEl.value = msgEl.value.slice(0, lim); cnt.textContent = msgEl.value.length + ' / ' + lim; };
@@ -287,12 +315,42 @@
     lead.addEventListener('submit', function (e) {
       e.preventDefault();
       var first = null;
-      req.forEach(function (r) { var el = q(r[0]); if (!el) return; var ok = r[1](el.value); el.setAttribute('aria-invalid', String(!ok)); if (!ok && !first) first = el; });
+      req.forEach(function (r) { var el = lead.elements[r[0]]; if (!el) return; var ok = r[1](el.value); el.setAttribute('aria-invalid', String(!ok)); if (!ok && !first) first = el; });
       msg.hidden = false;
       if (first) { msg.classList.add('is-warn'); msgT.textContent = 'Заполните поля со звездочкой: имя, телефон, e-mail, компания и сообщение'; first.focus(); return; }
-      msg.classList.remove('is-warn'); msgT.textContent = 'Это демо-макет — в рабочей версии заявка уйдет менеджеру';
+      msg.classList.remove('is-warn'); msgT.textContent = 'Тестовая версия сайта: заявка пока не отправляется. Позвоните нам по телефону выше';
       if (!RM) drawSoon(q('.mk', msg));
     });
+  });
+
+  /* ——— всплывающее окно заявки: «Узнать стоимость» и «Оставить заявку» открывают его вместо прокрутки к форме ——— */
+  var modal = q('#modal'), openModal = null;
+  if (modal && typeof modal.showModal === 'function') {
+    var panel = q('.modal__panel', modal), lastFocus = null, closing = false, deskMQ = window.matchMedia('(min-width: 901px)');
+    openModal = function (trigger) {
+      if (modal.open) return;
+      lastFocus = trigger || d.activeElement;
+      root.style.setProperty('--sbw', Math.max(0, window.innerWidth - root.clientWidth) + 'px');
+      root.classList.add('has-modal');
+      modal.showModal();
+      panel.scrollTop = 0;
+      if (RM) { modal.classList.add('is-in'); } else { requestAnimationFrame(function () { requestAnimationFrame(function () { modal.classList.add('is-in'); }); }); }
+      if (deskMQ.matches) setTimeout(function () { var f = q('input', modal); if (f && modal.open) f.focus({ preventScroll: true }); }, RM ? 0 : 420);
+    };
+    var closeModal = function () {
+      if (!modal.open || closing) return;
+      closing = true; modal.classList.remove('is-in');
+      var done = function () {
+        if (!closing) return; closing = false; modal.close(); root.classList.remove('has-modal'); root.style.removeProperty('--sbw');
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+      };
+      if (RM) { done(); return; }
+      var t = setTimeout(done, 450);
+      panel.addEventListener('transitionend', function h(e) { if (e.target !== panel) return; panel.removeEventListener('transitionend', h); clearTimeout(t); done(); });
+    };
+    modal.addEventListener('cancel', function (e) { e.preventDefault(); closeModal(); });
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+    q('.modal__x', modal).addEventListener('click', closeModal);
   }
 
   /* ——— якоря: заголовок встает под парящей шапкой ——— */
@@ -306,17 +364,18 @@
   function go(id, push) {
     var y = targetY(id); if (y === null) return false;
     window.scrollTo({ top: y, behavior: RM ? 'auto' : 'smooth' });
-    /* плавная прокрутка в Chrome иногда не стартует или промахивается из-за сдвига макета — проверяем и доводим */
+    /* плавная прокрутка иногда промахивается из-за сдвига макета — доводим так же плавно, когда она закончится */
     clearTimeout(goTimer);
-    goTimer = setTimeout(function () { var y2 = targetY(id); if (y2 !== null && Math.abs(window.pageYOffset - y2) > 24) window.scrollTo(0, y2); }, RM ? 60 : 900);
+    goTimer = setTimeout(function () { var y2 = targetY(id); if (y2 !== null && Math.abs(window.pageYOffset - y2) > 24) window.scrollTo({ top: y2, behavior: RM ? 'auto' : 'smooth' }); }, RM ? 60 : 1000);
     if (push) { try { history.pushState(null, '', '#' + id); } catch (err) { /* ignore */ } }
     return true;
   }
   d.addEventListener('click', function (e) {
-    var a = e.target.closest && e.target.closest('a[href^="#"]');
-    if (!a || e.defaultPrevented) return;
-    var id = a.getAttribute('href').slice(1);
-    if (!id || !d.getElementById(id)) return;
+    var a = e.target.closest && e.target.closest('a[href^="#"], a[href$="/#zayavka"]');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    var id = a.getAttribute('href').split('#')[1];
+    if (id === 'zayavka' && openModal) { e.preventDefault(); openModal(a); return; }
+    if (!id || !d.getElementById(id) || a.getAttribute('href').charAt(0) !== '#') return;
     e.preventDefault(); go(id, true);
   });
   if (location.hash.length > 1) setTimeout(function () { go(location.hash.slice(1), false); }, 80);

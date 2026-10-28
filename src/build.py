@@ -289,7 +289,11 @@ def build(theme, out, site_url, photos_dir, noindex):
     clean_dir(out)
     (out / "assets").mkdir(parents=True, exist_ok=True)
     for f in assets_src.iterdir():
-        if f.is_file() and not f.name.startswith("_"):
+        if f.name.startswith("_"):
+            continue
+        if f.is_dir():
+            shutil.copytree(f, out / "assets" / f.name, dirs_exist_ok=True)
+        elif f.is_file():
             shutil.copy2(f, out / "assets" / f.name)
 
     defs_path = assets_src / "_defs.svg"

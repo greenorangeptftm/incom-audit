@@ -16,11 +16,10 @@
 <meta property="og:site_name" content="Инком-Аудит">
 <meta name="theme-color" content="#0D3C55">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='58' fill='%23fff'/%3E%3Cpath fill='%230C4B8B' d='M37 6.75A58 58 0 0 0 37 113.25Z'/%3E%3Cpath fill='%239AB0BC' d='M68 117.45V77A37 37 0 0 0 90.75 10.82A58 58 0 0 1 68 117.45Z'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../assets/fonts/onest-cyrillic.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../assets/fonts/onest-latin.woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
 <link rel="stylesheet" href="../assets/sverka.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;500&family=Onest:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;500&family=Onest:wght@400;500;600;700&display=swap"></noscript>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://greenorangeptftm.github.io/incom-audit/"},{"@type":"ListItem","position":2,"name":"Блог","item":"https://greenorangeptftm.github.io/incom-audit/blog/"}]}</script>
 <!-- Яндекс.Вебмастер: <meta name="yandex-verification" content="…"> -->
 <!-- Яндекс.Метрика: вставить код счетчика перед </head> -->
@@ -61,20 +60,20 @@
       <h2 class="h2 h2-long" id="zayavka-h">Для определения объема и стоимости услуг заполните форму обратной связи или свяжитесь с нами любым удобным способом</h2>
       <p class="phone-big" id="phoneTxt">+7 (499) 130-80-18</p>
       <p class="email"><span id="mailTxt">help@incom-consult.ru</span></p>
-      <div class="c-row"><a class="btn btn-white" href="tel:+74991308018">Позвонить</a><button class="btn btn-line" type="button" data-copy="+7 (499) 130-80-18" data-target="phoneTxt">Скопировать номер</button></div>
+      <div class="c-row"><a class="btn btn-white btn-ico" href="tel:+74991308018"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 3.5h3.2l1.6 4.2-2 1.4a11.5 11.5 0 0 0 6.6 6.6l1.4-2 4.2 1.6v3.2a1.6 1.6 0 0 1-1.7 1.5A15.6 15.6 0 0 1 4 5.2a1.6 1.6 0 0 1 1.5-1.7z"/></svg><span>Позвонить</span></a><button class="btn btn-line btn-copy" type="button" data-copy="+7 (499) 130-80-18" data-target="phoneTxt"><span class="ico-sw"><svg class="ico ico-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></svg><svg class="ico ico-check" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="sw"><span>Скопировать номер</span><span aria-hidden="true">Скопировано</span></span></button></div>
       <p class="geo">Офис в Москве. Работаем по всей России</p>
     </div>
-    <form class="form-sheet" id="leadForm" novalidate aria-labelledby="lead-h">
-      <h3 id="lead-h">Форма обратной связи</h3>
+    <form class="form-sheet" id="f-form" data-lead novalidate aria-labelledby="f-h">
+      <h3 id="f-h">Форма обратной связи</h3>
       <div class="fld"><label for="f-name">Ваше имя*</label><input id="f-name" name="name" autocomplete="name" required></div>
       <div class="fld"><label for="f-phone">Телефон*</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" required></div>
       <div class="fld"><label for="f-email">E-mail*</label><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>
       <div class="fld"><label for="f-company">Наименование компании*</label><input id="f-company" name="company" autocomplete="organization" required></div>
-      <div class="fld"><label for="f-msg">Сообщение*</label><textarea id="f-msg" name="message" rows="4" maxlength="500" required></textarea><span class="counter" id="msgCount" aria-live="polite">0 / 500</span></div>
+      <div class="fld"><label for="f-msg">Сообщение*</label><textarea id="f-msg" name="message" rows="4" maxlength="500" required></textarea><span class="counter" data-count aria-live="polite">0 / 500</span></div>
       <div class="fld"><label for="f-task">Задача <span class="opt">необязательно</span></label><select id="f-task" name="task"><option>Обязательный аудит</option><option>Инициативный аудит</option><option>Налоговый аудит</option><option>Аудит застройщика по 214-ФЗ</option><option>Дью дилидженс перед сделкой</option><option>Подготовка отчетности по МСФО</option><option>Бухгалтерские услуги</option><option>Консалтинг и споры</option><option>Другое</option></select></div>
       <button class="btn btn-pen" type="submit">Отправить заявку <span class="arr" aria-hidden="true">→</span></button>
       <p class="consent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</p>
-      <p class="form-msg" id="leadMsg" role="status" hidden><svg class="mk" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M4.2 13.2c1.7 1.3 3.4 3.2 4.9 5.6 2.6-6 6.2-10.6 10.9-14.3"/></svg><span id="leadMsgText"></span></p>
+      <p class="form-msg" role="status" hidden><svg class="mk" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M4.2 13.2c1.7 1.3 3.4 3.2 4.9 5.6 2.6-6 6.2-10.6 10.9-14.3"/></svg><span class="form-msg__t"></span></p>
     </form>
   </div>
 </section>
@@ -91,10 +90,32 @@
       <div><h4>Контакты</h4><ul><li><a href="tel:+74991308018">+7 (499) 130-80-18</a></li><li><a href="mailto:help@incom-consult.ru">help@incom-consult.ru</a></li><li>123458, Москва, ул. Твардовского, д. 2, корп. 5</li><li>Офис в Москве · работаем по всей России</li></ul></div>
     </div>
     <div class="legal"><span>© 2010–2026 ООО «Инком-Аудит»</span><span>Член СРО ААС «Содружество» · ОРНЗ 12006082980</span></div>
-    <p class="credits">Фотографии: Unsplash (свободная лицензия). Макет сайта: формы не отправляются, цифры в примерах условные</p>
   </div>
 </footer>
 <nav class="mbar" id="mbar" aria-label="Быстрые действия"><a href="tel:+74991308018">Позвонить</a><a class="mbar-cta" href="#zayavka">Заявка</a></nav>
+<dialog class="modal" id="modal" aria-labelledby="modal-h">
+  <div class="modal__panel">
+    <button class="modal__x" type="button" aria-label="Закрыть"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="modal__side">
+      <p class="kicker kicker--dark">Заявка</p>
+      <h2 class="modal__h" id="modal-h">Узнать стоимость</h2>
+      <p class="modal__p">Для определения объема и стоимости услуг заполните форму или свяжитесь с нами любым удобным способом</p>
+      <div class="modal__c"><a class="modal__phone" href="tel:+74991308018">+7 (499) 130-80-18</a><a class="modal__mail" href="mailto:help@incom-consult.ru">help@incom-consult.ru</a></div>
+      <p class="modal__geo">Офис в Москве. Работаем по всей России</p>
+    </div>
+    <form class="form-sheet form-sheet--modal" id="m-form" data-lead novalidate aria-label="Форма обратной связи">
+      <div class="fld"><label for="m-name">Ваше имя*</label><input id="m-name" name="name" autocomplete="name" required></div>
+      <div class="fld"><label for="m-phone">Телефон*</label><input id="m-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" required></div>
+      <div class="fld"><label for="m-email">E-mail*</label><input id="m-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>
+      <div class="fld"><label for="m-company">Наименование компании*</label><input id="m-company" name="company" autocomplete="organization" required></div>
+      <div class="fld"><label for="m-msg">Сообщение*</label><textarea id="m-msg" name="message" rows="4" maxlength="500" required></textarea><span class="counter" data-count aria-live="polite">0 / 500</span></div>
+      <div class="fld"><label for="m-task">Задача <span class="opt">необязательно</span></label><select id="m-task" name="task"><option>Обязательный аудит</option><option>Инициативный аудит</option><option>Налоговый аудит</option><option>Аудит застройщика по 214-ФЗ</option><option>Дью дилидженс перед сделкой</option><option>Подготовка отчетности по МСФО</option><option>Бухгалтерские услуги</option><option>Консалтинг и споры</option><option>Другое</option></select></div>
+      <button class="btn btn-pen" type="submit">Отправить заявку <span class="arr" aria-hidden="true">→</span></button>
+      <p class="consent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</p>
+      <p class="form-msg" role="status" hidden><svg class="mk" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M4.2 13.2c1.7 1.3 3.4 3.2 4.9 5.6 2.6-6 6.2-10.6 10.9-14.3"/></svg><span class="form-msg__t"></span></p>
+    </form>
+  </div>
+</dialog>
 <script src="../assets/sverka.js" defer></script>
 </body>
 </html>
