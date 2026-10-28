@@ -151,13 +151,14 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 /* ───── главная: первый экран ───── */
 .hero{position:relative;isolation:isolate;overflow:hidden;color:#fff;background:#0B2A3B;min-height:clamp(600px,88vh,860px);display:flex;flex-direction:column;justify-content:flex-end}
 .hero-img{position:absolute;inset:0;z-index:-2}
-.hero-img img{width:100%;height:100%;object-fit:cover}
-/* силуэты привязаны к фото: фото тянется по ширине (cover, позиция 60% 42%), поэтому голова мужчины всегда
-   попадает в светлое зарево между башнями — по горизонтали 67.5% ширины, по вертикали 29.7% высоты фото */
-.hero-duo{--dh:min(31vw,540px);position:absolute;z-index:-1;height:var(--dh);width:auto;max-width:none;top:calc(42% - 8.19vw - .101 * var(--dh));left:calc(67.5% - .3373 * var(--dh));pointer-events:none;user-select:none}
+.hero-img>img{width:100%;height:100%;object-fit:cover}
+/* силуэты привязаны к фото: на широких экранах фото тянется по ширине (cover, позиция 60% 42%), поэтому голова мужчины
+   всегда попадает в светлое зарево между башнями — по горизонтали 67.5% ширины, по вертикали 29.7% высоты фото.
+   Силуэты лежат внутри .hero-img, на широких экранах ее рамка равна рамке hero */
+.hero-duo{--dh:min(31vw,540px);position:absolute;z-index:1;height:var(--dh);width:auto;max-width:none;top:calc(42% - 8.19vw - .101 * var(--dh));left:calc(67.5% - .3373 * var(--dh));pointer-events:none;user-select:none}
 .js .hero-duo{opacity:0;transform:translate3d(0,14px,0);transition:opacity 1.3s var(--ease),transform 1.6s var(--ease)}
 .js .hero-duo.is-in{opacity:1;transform:none}
-@media (max-width:999px),(max-aspect-ratio:5/4){.hero-duo{display:none}}
+@media (min-width:641px) and (max-width:999px),(min-width:641px) and (max-aspect-ratio:5/4),(max-width:640px) and (orientation:landscape){.hero-duo{display:none}}
 .hero-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(5,28,41,.86) 0%,rgba(5,28,41,.62) 36%,rgba(5,28,41,.12) 68%,rgba(5,28,41,0) 100%),linear-gradient(0deg,rgba(5,28,41,.9) 0%,rgba(5,28,41,.35) 30%,rgba(5,28,41,0) 52%),linear-gradient(180deg,rgba(5,28,41,.5) 0%,rgba(5,28,41,0) 20%)}
 .hero>.wrap{width:100%}
 .hero-in{padding-top:136px;padding-bottom:36px}
@@ -175,11 +176,19 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 .hero-strip dd{font:600 clamp(17px,1.5vw,21px)/1.25 var(--f);letter-spacing:-.01em}
 @media (max-width:860px){.hero-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-strip>div:nth-child(3){box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}.hero-strip>div:nth-child(4){box-shadow:inset 1px 0 0 rgba(255,255,255,.16),inset 0 1px 0 rgba(255,255,255,.16)}}
 @media (max-width:640px){
-  .hero{min-height:0}.hero-img img{object-position:66% 40%!important}
+  .hero{min-height:0}.hero-img>img{object-position:66% 40%!important}
   .hero-shade{background:linear-gradient(0deg,rgba(5,28,41,.94) 0%,rgba(5,28,41,.72) 45%,rgba(5,28,41,.25) 75%,rgba(5,28,41,.45) 100%)}
   .hero-in{padding-top:min(30vh,230px);padding-bottom:24px}.hero-kicker{font-size:13.5px;margin-bottom:14px}
   .hero h1{font-size:clamp(34px,10.4vw,46px)}.hero-lead{margin-top:16px}.hero-cta{flex-direction:column;align-items:stretch;margin-top:24px}
   .hero-strip{margin-bottom:18px;border-radius:18px}.hero-strip>div{padding:14px 16px 16px}.hero-strip dt{font-size:12.5px}.hero-strip dd{font-size:16px}
+}
+/* телефон вертикально: фото занимает верхние 72% высоты экрана своим размером (рамка .hero-img = рамка фото) и сдвинуто так,
+   что зарево стоит на 50vw; силуэты внутри рамки считаются в процентах фото, текст начинается под ними, низ фото растворяется */
+@media (max-width:640px) and (orientation:portrait){
+  .hero-img{inset:auto;top:0;left:50vw;height:72%;width:auto;transform:translateX(-67.5%);-webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent)}
+  .hero-img>img{width:auto;height:100%;max-width:none;object-fit:fill;object-position:0 0!important}
+  .hero-duo{--dh:76vw;top:calc(29.7% - .101*var(--dh));left:calc(67.5% - .3373*var(--dh))}
+  .hero-in{padding-top:100vw}
 }
 
 /* ───── каталог услуг ───── */

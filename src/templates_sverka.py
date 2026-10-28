@@ -554,7 +554,9 @@ def collage(ctx, cls="collage", lazy=True):
 
 # Двое специалистов спиной к спине против закатного солнца (картинку запекает src/duo.py). Только на широких экранах
 # На узких экранах силуэты скрыты: <source> подставляет пустой gif, чтобы телефон не качал картинку зря
-HERO_DUO = ('<picture><source media="(max-width: 999px), (max-aspect-ratio: 5/4)" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">'
+# Силуэты лежат внутри <figure class="hero-img">, чтобы на телефоне считаться в процентах от рамки фото.
+# Где силуэтов нет (планшеты и телефон горизонтально), <source> подсовывает 1px-гифку, и картинка не качается.
+HERO_DUO = ('<picture><source media="(min-width: 641px) and (max-width: 999px), (min-width: 641px) and (max-aspect-ratio: 5/4), (max-width: 640px) and (orientation: landscape)" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">'
             '<img class="hero-duo" src="/assets/hero-duo.webp" width="829" height="931" alt="" aria-hidden="true" decoding="async" fetchpriority="low"></picture>')
 
 
@@ -565,13 +567,14 @@ def render_home(ctx, page):
     h1 = re.sub(r'<span class="accent">(.*?)</span>', lambda m: '<span class="u">%s%s</span>' % (m.group(1), uline), h1, count=1)
     tag = '<p class="hero-tag">%s</p>' % esc(h["tagline"]) if h.get("tagline") else ""
     hero_img = figure(ctx, h.get("photo") or "moscow-city-sunset", "Москва-Сити на закате, вид на набережную и проспект", cls="hero-img", sizes="100vw", lazy=False)
+    hero_img = hero_img.replace("</figure>", HERO_DUO + "</figure>")
     hero = (
-        '<section class="hero" id="top" data-tone="dark" aria-labelledby="hero-h">\n  %s\n  %s\n  <div class="hero-shade" aria-hidden="true"></div>\n'
+        '<section class="hero" id="top" data-tone="dark" aria-labelledby="hero-h">\n  %s\n  <div class="hero-shade" aria-hidden="true"></div>\n'
         '  <div class="wrap hero-in">\n    <p class="hero-kicker">%s</p>\n    <h1 id="hero-h">%s</h1>\n%s    <p class="hero-lead">%s</p>\n'
         '    <div class="hero-cta">%s%s</div>\n  </div>\n  <div class="wrap"><dl class="hero-strip">'
         '<div><dt>Услуги</dt><dd>аудит, МСФО, консалтинг, бухучет</dd></div><div><dt>Опыт</dt><dd>300+ проектов с&nbsp;2010 года</dd></div>'
         '<div><dt>Отрасли</dt><dd>Производство, услуги, сельское хозяйство, строительство, торговля, IT и&nbsp;др.</dd></div><div><dt>Членство в&nbsp;СРО</dt><dd>СРО ААС, ОРНЗ <span class="nb">12006082980</span></dd></div></dl></div>\n</section>\n'
-        % (hero_img, HERO_DUO, esc(h.get("kicker") or "Аудиторская компания • с 2010 года • Работаем по всей России"), h1, tag, h.get("sub") or page.get("lead", ""),
+        % (hero_img, esc(h.get("kicker") or "Аудиторская компания • с 2010 года • Работаем по всей России"), h1, tag, h.get("sub") or page.get("lead", ""),
            btn(*(h.get("cta") or ("Узнать стоимость", "#zayavka"))), btn(*(h.get("cta2") or ("Обязательный аудит", "/audit/obyazatelnyj/")), "glass", arrow=False)))
 
     d = page.get("directory") or []
