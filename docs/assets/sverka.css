@@ -104,9 +104,15 @@ button,input,select{font:inherit;color:inherit}
 .lg__brand small{display:block;font:500 11.5px/1.2 var(--f);letter-spacing:.02em;opacity:.75;margin-top:4px}
 /* знак «Двойная запись»: раз в 8 секунд плавный поворот на полоборота вокруг оранжевого сальдо (фигура симметрична, стык незаметен) */
 .dz{display:block;overflow:visible}
-.dz__g{transform-box:fill-box;transform-origin:center;animation:dz-turn 8s cubic-bezier(.7,0,.2,1) infinite}
-@keyframes dz-turn{0%,64%{transform:rotate(0)}100%{transform:rotate(180deg)}}
-@media (prefers-reduced-motion:reduce){.dz__g{animation:none}}
+/* «Обмен»: контуры меняются местами по дуге вокруг сальдо, не наклоняясь (группа крутится, прямоугольник внутри крутится обратно);
+   сальдо в момент встречи делает четверть оборота и пульсирует. Фигура симметрична, стык цикла не виден. Только CSS */
+.dz__o{transform-box:view-box;transform-origin:50% 50%;animation:dz-orbit 5.2s cubic-bezier(.65,0,.35,1) infinite}
+.dz__q{transform-box:fill-box;transform-origin:center;animation:dz-hold 5.2s cubic-bezier(.65,0,.35,1) infinite}
+.dz__c{transform-box:fill-box;transform-origin:center;animation:dz-core 5.2s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes dz-orbit{0%,62%{transform:rotate(0)}100%{transform:rotate(180deg)}}
+@keyframes dz-hold{0%,62%{transform:rotate(0)}100%{transform:rotate(-180deg)}}
+@keyframes dz-core{0%,62%{transform:scale(1) rotate(0)}81%{transform:scale(1.22) rotate(45deg)}100%{transform:scale(1) rotate(90deg)}}
+@media (prefers-reduced-motion:reduce){.dz__o,.dz__q,.dz__c{animation:none}}
 .lg__links{position:relative;display:flex;align-items:center;margin-left:auto}
 .lg__links a{position:relative;z-index:1;padding:10px 12px;border-radius:999px;color:inherit;text-decoration:none;font:500 15px/1 var(--f);white-space:nowrap;opacity:.88;transition:opacity .2s}
 .lg__links a:hover,.lg__links a[aria-current="page"]{opacity:1}
@@ -411,12 +417,13 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 /* ───── заявка (тёмная полоса) ───── */
 .contact{position:relative;isolation:isolate;overflow:hidden;background:var(--ink);color:#fff;padding-block:var(--sec)}
 .contact::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(80% 90% at 0% 0%,rgba(2,71,86,.9),rgba(13,60,85,0) 60%),radial-gradient(60% 80% at 100% 100%,rgba(8,38,54,.9),rgba(13,60,85,0) 70%)}
-.contact-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,5vw,72px);align-items:center}
+.contact-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,5vw,72px);align-items:start}
 .contact-l{display:grid;gap:18px;align-content:start;min-width:0}
 .contact-l .lead{color:var(--on-dark-2)}
 .phone-big{font:600 clamp(23px,2.3vw,33px)/1.2 var(--f);letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .phone-big--ink{color:var(--ink)}
 .email{font:500 clamp(23px,2.3vw,33px)/1.2 var(--f);letter-spacing:-.02em;overflow-wrap:anywhere}
+.contact-l .email{margin-top:22px}
 .email a{color:#fff;text-decoration:none}
 .email a:hover{text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--pen)}
 .c-row{display:flex;flex-wrap:wrap;gap:10px}
@@ -612,11 +619,11 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 .crow:last-child{border-bottom:0}
 .crow__l{font:600 13.5px/1.3 var(--f);color:var(--muted);letter-spacing:.02em}
 .crow__v{font:600 clamp(19px,1.6vw,24px)/1.25 var(--f);letter-spacing:-.015em;color:var(--ink);overflow-wrap:anywhere;min-width:0}
-.crow__v--big{font-size:clamp(26px,2.6vw,38px);letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.crow__v--tel{font-variant-numeric:tabular-nums;white-space:nowrap}
 .crow__v--sm{font-size:clamp(17px,1.3vw,20px);font-weight:500;letter-spacing:-.01em}
 .crow__a{display:flex;gap:10px;flex:none}
 .crow__a .btn{min-height:48px;min-width:168px;padding-inline:20px;font-size:15px}
-@media (max-width:900px){.crow{grid-template-columns:1fr;gap:6px 0}.crow__a{margin-top:10px;width:100%}.crow__a .btn{flex:1 1 0;min-width:0}.crow__v--big{white-space:normal}}
+@media (max-width:900px){.crow{grid-template-columns:1fr;gap:6px 0}.crow__a{margin-top:10px;width:100%}.crow__a .btn{flex:1 1 0;min-width:0}.crow__v--tel{white-space:normal}}
 @media (max-width:420px){.crow__a .btn{padding-inline:14px;font-size:14.5px}}
 
 /* ───── появление ───── */

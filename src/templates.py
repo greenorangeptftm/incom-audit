@@ -491,7 +491,7 @@ def render_blog(ctx, page):
 
 def render_home(ctx, page):
     h = page.get("hero") or {}
-    cred = "".join("<li>%s</li>" % esc(c) for c in h.get("cred") or ["300+ проектов", "СРО ААС «Содружество»", "ОРНЗ 12006082980"])
+    cred = "".join("<li>%s</li>" % esc(c) for c in h.get("cred") or ["700+ проектов", "СРО ААС «Содружество»", "ОРНЗ 12006082980"])
     hero_photo = figure(ctx, h.get("photo") or "moscow-city-aerial", "Башни Москва-Сити с высоты", cls="duo hero__photo", sizes="(max-width: 960px) 100vw, 46vw", caption="Работаем по всей России", lazy=False)
     hero = (
         '<section class="hero" id="top" data-tone="light" aria-labelledby="hero-h">\n  <div class="stamps" id="stamps" aria-hidden="true"></div>\n'

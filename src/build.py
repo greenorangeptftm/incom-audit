@@ -199,7 +199,7 @@ def _tag_name(tok):
     return m.group(1).lower() if m else ""
 
 
-def finalize_text(html):
+def finalize_text(html, strip=True):
     """Тема «Сверка»: заменяет «ё» на «е» и убирает точки в конце текстовых блоков.
     Точка остаётся, если за ней (сквозь строчные теги) идёт новое предложение с заглавной буквы, цифры или кавычки,
     а также после сокращений (г., руб., ул., д., ст., т. д.) и внутри чисел/многоточий."""
@@ -233,10 +233,10 @@ def finalize_text(html):
             elif tk.lower().startswith(("<script", "<style", "<pre", "<textarea")):
                 out.append(_yo(tk) if 'application/ld+json' in tk[:120] else tk)
             else:
-                out.append(ATTR_RE.sub(lambda m: '%s="%s"' % (m.group(1), _strip_trailing_period(_yo(m.group(2)))), tk))
+                out.append(ATTR_RE.sub(lambda m: '%s="%s"' % (m.group(1), _strip_trailing_period(_yo(m.group(2))) if strip else _yo(m.group(2))), tk))
             continue
         t = _yo(tk)
-        if "." in t:
+        if strip and "." in t:
             res, i = [], 0
             while i < len(t):
                 c = t[i]
@@ -263,6 +263,21 @@ def finalize_text(html):
                 i += 1
             t = "".join(res)
         out.append(t)
+    return "".join(out)
+
+
+KEEP_RE = re.compile(r"(<!--keep-->.*?<!--/keep-->)", re.S)
+
+
+def finalize_page(html):
+    """finalize_text для всей страницы; внутри <!--keep-->…<!--/keep--> (страницы с keep_periods=True)
+    точки в конце предложений остаются, замена «ё» действует везде. Метки из результата убираются."""
+    out = []
+    for part in KEEP_RE.split(html):
+        if part.startswith("<!--keep-->"):
+            out.append(finalize_text(part[len("<!--keep-->"):-len("<!--/keep-->")], strip=False))
+        else:
+            out.append(finalize_text(part))
     return "".join(out)
 
 
@@ -320,7 +335,7 @@ def build(theme, out, site_url, photos_dir, noindex):
         html = expand_photos(html, ctx, templates)
         html = rewrite_links(html, root)
         if theme == "sverka":
-            html = finalize_text(html)
+            html = finalize_page(html)
         used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.jpg', html))
         target = out / page["path"] / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -351,7 +366,7 @@ def build(theme, out, site_url, photos_dir, noindex):
                    photo_prefix=photo_rel, photos=photos, pages=pages, by_path=by_path, articles=articles, today=today, defs=defs_svg)
         html = rewrite_links(templates.render_404(ctx), "")
         if theme == "sverka":
-            html = finalize_text(html)
+            html = finalize_page(html)
         used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.jpg', html))
         (out / "404.html").write_text(html, encoding="utf-8")
 

@@ -89,10 +89,10 @@ def btn(label, href, kind="pen", arrow=True):
 
 # ---------- логотип «Двойная запись»: два квадрата, оранжевое сальдо в пересечении ----------
 # Контуры рисуются currentColor, поэтому в светлой шапке знак петрольный, в темной шапке и подвале — белый.
-# Группа .dz__g раз в несколько секунд плавно поворачивается на полоборота (CSS, фигура симметрична).
-DZ_MARK = ('<svg class="dz" viewBox="0 0 120 120" aria-hidden="true"><g class="dz__g"><rect x="44" y="44" width="32" height="32" fill="#E8611A"/>'
-           '<rect x="14" y="14" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="round"/>'
-           '<rect x="44" y="44" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="round"/></g></svg>')
+# Анимация «Обмен» в sverka.css: контуры .dz__o идут по дуге вокруг сальдо .dz__c (CSS, фигура симметрична).
+DZ_MARK = ('<svg class="dz" viewBox="0 0 120 120" aria-hidden="true"><rect class="dz__c" x="44" y="44" width="32" height="32" fill="#E8611A"/>'
+           '<g class="dz__o"><rect class="dz__q" x="14" y="14" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="round"/></g>'
+           '<g class="dz__o"><rect class="dz__q" x="44" y="44" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="round"/></g></svg>')
 FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%230D3C55'/%3E"
            "%3Crect x='44' y='44' width='32' height='32' fill='%23E8611A'/%3E"
            "%3Crect x='14' y='14' width='62' height='62' fill='none' stroke='%23fff' stroke-width='9' stroke-linejoin='round'/%3E"
@@ -112,10 +112,10 @@ def header(page, tone):
         '<header class="lg" data-tone="%s" id="lg">\n  <div class="lg__bar">\n'
         '    <a class="lg__brand" href="/" aria-label="Инком-Аудит, на главную">%s<span><b>ИНКОМ-АУДИТ</b><small>Аудиторская компания</small></span></a>\n'
         '    <nav class="lg__links" aria-label="Разделы"><span class="lg__lens" aria-hidden="true"></span>%s</nav>\n'
-        '    <a class="lg__phone" href="%s">%s</a>\n    <a class="lg__cta" href="#zayavka">Узнать стоимость</a>\n'
+        '    <a class="lg__phone" href="%s">%s</a>\n    <a class="lg__cta" href="#zayavka">Связаться с нами</a>\n'
         '    <button class="lg__burger" type="button" aria-expanded="false" aria-controls="lg-sheet" aria-label="Открыть меню"><i></i><i></i><i></i></button>\n'
         '  </div>\n  <nav class="lg__sheet" id="lg-sheet" hidden aria-label="Меню">\n    %s\n'
-        '    <a href="/#check">Критерии обязательного аудита <span aria-hidden="true">→</span></a>\n'
+        '    <a href="#zayavka">Связаться с нами <span aria-hidden="true">→</span></a>\n'
         '    <a class="lg__sheet-phone" href="%s">%s</a>\n  </nav>\n</header>\n'
         % (tone, DZ_MARK, "".join(links), PHONE_HREF, PHONE, "\n    ".join(sheet), PHONE_HREF, PHONE))
 
@@ -414,6 +414,8 @@ def hero_preload(ctx, page):
 
 def render_doc(ctx, page):
     body, toc = doc_sections(ctx, page)
+    if page.get("keep_periods"):   # сборка не убирает точки внутри этих меток (политика ПД)
+        body = "<!--keep-->" + body + "<!--/keep-->"
     form = "" if page.get("no_form") else zayavka(page)
     return base(ctx, page, page_hero(ctx, page) + doc_block(ctx, page, body, toc) + related_html(page) + form, pre=hero_preload(ctx, page))
 
@@ -426,7 +428,7 @@ def render_contacts(ctx, page):
     body, toc = doc_sections(ctx, page)
     row = lambda lbl, val, vid, cls, acts: ('<div class="crow"><p class="crow__l">%s</p><p class="crow__v%s" id="%s">%s</p><div class="crow__a">%s</div></div>'
                                            % (lbl, cls, vid, val, acts))
-    rows = (row("Телефон", PHONE, "cPhone", " crow__v--big", ibtn("Позвонить", PHONE_HREF, "phone") + copy_btn(PHONE, "cPhone"))
+    rows = (row("Телефон", PHONE, "cPhone", " crow__v--tel", ibtn("Позвонить", PHONE_HREF, "phone") + copy_btn(PHONE, "cPhone"))
             + row("E-mail", MAIL, "cMail", "", ibtn("Написать", "mailto:" + MAIL, "mail") + copy_btn(MAIL, "cMail"))
             + row("Офис", ADDRESS, "cAddr", " crow__v--sm", ibtn("На карте", MAP_URL, "pin") + copy_btn(ADDRESS, "cAddr")))
     info = ('<section class="sec-band csec" data-tone="light" aria-label="Контакты компании"><div class="wrap">'
@@ -582,8 +584,8 @@ def render_home(ctx, page):
         '<section class="hero" id="top" data-tone="dark" aria-labelledby="hero-h">\n  %s\n  <div class="hero-shade" aria-hidden="true"></div>\n'
         '  <div class="wrap hero-in">\n    <p class="hero-kicker">%s</p>\n    <h1 id="hero-h">%s</h1>\n%s    <p class="hero-lead">%s</p>\n'
         '    <div class="hero-cta">%s%s</div>\n  </div>\n  <div class="wrap"><dl class="hero-strip">'
-        '<div><dt>Услуги</dt><dd>аудит, МСФО, консалтинг, бухучет</dd></div><div><dt>Опыт</dt><dd>300+ проектов с&nbsp;2010 года</dd></div>'
-        '<div><dt>Отрасли</dt><dd>Производство, услуги, сельское хозяйство, строительство, торговля, IT и&nbsp;др.</dd></div><div><dt>Членство в&nbsp;СРО</dt><dd>СРО ААС, ОРНЗ <span class="nb">12006082980</span></dd></div></dl></div>\n</section>\n'
+        '<div><dt>Услуги</dt><dd>аудит, МСФО, консалтинг, бухучет</dd></div><div><dt>Опыт</dt><dd>700+ проектов с&nbsp;2010 года</dd></div>'
+        '<div><dt>Отрасли</dt><dd>производство, торговля, с/х, инвестиции, аренда, IT</dd></div><div><dt>Членство в&nbsp;СРО</dt><dd>СРО ААС<br>ОРНЗ <span class="nb">12006082980</span></dd></div></dl></div>\n</section>\n'
         % (hero_img, esc(h.get("kicker") or "Аудиторская компания • с 2010 года • Работаем по всей России"), h1, tag, h.get("sub") or page.get("lead", ""),
            btn(*(h.get("cta") or ("Узнать стоимость", "#zayavka"))), btn(*(h.get("cta2") or ("Обязательный аудит", "/audit/obyazatelnyj/")), "glass", arrow=False)))
 
@@ -592,8 +594,6 @@ def render_home(ctx, page):
     directory = ('<section class="sec-band" id="services" data-tone="light" aria-labelledby="svc-h"><div class="wrap"><div class="sec-head sec-head--one" data-rise><h2 class="h2" id="svc-h">%s</h2></div>'
                  '<div class="dir2" data-dv>%s</div></div></section>\n' % (esc(page.get("directory_h2") or "Наши услуги"), rows)) if d else ""
 
-    check = '<section class="sec-band sec-band--sheet" id="check" data-tone="light" aria-labelledby="check-h"><div class="wrap">%s</div></section>\n' % checker()
-
     steps = page.get("process") or []
     st_ = "".join('<li class="step"><span class="node">%d%s</span><h3>%s</h3><p>%s</p></li>' % (i, mk(), esc(a), esc(b)) for i, (a, b) in enumerate(steps, 1))
     process = ('<section class="sec-band cv" id="process" data-tone="light" aria-labelledby="proc-h"><div class="wrap"><div class="sec-head sec-head--one" data-rise><h2 class="h2" id="proc-h">%s</h2></div>'
@@ -601,22 +601,8 @@ def render_home(ctx, page):
                '</div></section>\n'
                % (esc(page.get("process_h2") or "Как мы строим нашу работу"), st_)) if steps else ""
 
-    posts = article_cards(ctx, 3)
-    articles = ('<section class="sec-band sec-band--sheet cv" id="articles" data-tone="light" aria-labelledby="art-h"><div class="wrap"><div class="sec-head" data-rise><h2 class="h2" id="art-h">Блог для бухгалтера и собственника</h2>'
-                '<p class="lead">Разбираем критерии, сроки и документы простым языком. <a class="link" href="/blog/">Все статьи <span class="arr" aria-hidden="true">→</span></a></p></div><div class="posts">%s</div></div></section>\n' % "".join(posts)) if posts else ""
-
-    ab = page.get("about") or {}
-    about = ""
-    if ab:
-        paras = "".join("<p>%s</p>" % esc(p) for p in ab.get("paragraphs") or [])
-        member = '<p class="member">%s</p>' % esc(ab["member"]) if ab.get("member") else ""
-        about = ('<section class="sec-band sec-band--sheet cv" id="about" data-tone="light" aria-labelledby="about-h"><div class="wrap about-grid">%s'
-                 '<div class="about-copy"><h2 class="h2 about-h" id="about-h">%s</h2><p class="tagline">%s</p>%s%s'
-                 '<p><a class="btn btn-ink" href="/o-kompanii/">О нас подробнее</a></p></div></div></section>\n'
-                 % (collage(ctx, "collage about-col"), esc(ab.get("h2") or "ИНКОМ-АУДИТ"), esc(ab.get("motto") or "Актуальные решения — наше искусство"), paras, member))
-
     extra, _ = doc_sections(ctx, page)
-    body = hero + directory + check + industries(ctx, page.get("industries") or INDUSTRIES8) + process + articles + about + doc_block(ctx, page, extra, [], with_toc=False) + zayavka(page)
+    body = hero + directory + industries(ctx, page.get("industries") or INDUSTRIES8) + process + doc_block(ctx, page, extra, [], with_toc=False) + zayavka(page)
     return base(ctx, page, body, tone="dark", pre=preload(ctx, h.get("photo") or "moscow-city-sunset", "100vw"))
 
 
