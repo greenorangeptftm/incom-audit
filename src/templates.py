@@ -16,9 +16,6 @@ NAV = [("Аудит", "/audit/"), ("МСФО", "/msfo/"), ("Бухучет", "/b
 EXPECTED_PAGES = [
     ("audit/", "Аудиторские услуги"),
     ("audit/obyazatelnyj/", "Обязательный аудит"),
-    ("audit/stoimost/", "Стоимость аудита"),
-    ("audit/otchetnosti/", "Аудит отчётности"),
-    ("audit/zastroyshchikov/", "Аудит застройщиков"),
     ("audit/nalogovyj/", "Налоговый аудит"),
     ("audit/iniciativnyj/", "Инициативный аудит"),
     ("audit/due-diligence/", "Дью дилидженс"),
@@ -27,29 +24,26 @@ EXPECTED_PAGES = [
     ("konsalting/", "Консалтинг"),
     ("o-kompanii/", "О нас"),
     ("kontakty/", "Контакты"),
-    ("zakazat-audit/", "Заказать аудит"),
     ("blog/", "Блог"),
 ]
 
 FOOTER_SERVICES = [
-    ("Аудиторские услуги", "/audit/"),
     ("Обязательный аудит", "/audit/obyazatelnyj/"),
-    ("Стоимость аудита", "/audit/stoimost/"),
-    ("Аудит отчётности", "/audit/otchetnosti/"),
-    ("Аудит застройщиков", "/audit/zastroyshchikov/"),
-    ("Налоговый аудит", "/audit/nalogovyj/"),
+    ("Due diligence", "/audit/due-diligence/"),
     ("Инициативный аудит", "/audit/iniciativnyj/"),
-    ("Дью дилидженс", "/audit/due-diligence/"),
-    ("Подготовка отчетности по МСФО", "/msfo/"),
-    ("Бухгалтерские услуги", "/buhgalterskie-uslugi/"),
-    ("Консалтинг", "/konsalting/"),
+    ("Налоговый аудит", "/audit/nalogovyj/"),
+    ("МСФО", "/msfo/"),
+    ("Бухгалтерское сопровождение", "/buhgalterskie-uslugi/"),
+    ("Налоговый и юридический консалтинг", "/konsalting/"),
 ]
 FOOTER_COMPANY = [
     ("О нас", "/o-kompanii/"),
+    ("Отрасли", "/#industries"),
+]
+FOOTER_INFO = [
     ("Блог", "/blog/"),
-    ("Заказать аудит", "/zakazat-audit/"),
-    ("Критерии обязательного аудита", "/#check"),
     ("Контакты", "/kontakty/"),
+    ("Связаться с нами", "#zayavka"),
 ]
 
 INDUSTRIES = [

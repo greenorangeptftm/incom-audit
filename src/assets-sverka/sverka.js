@@ -321,12 +321,16 @@
       var upd = function () { if (msgEl.value.length > lim) msgEl.value = msgEl.value.slice(0, lim); cnt.textContent = msgEl.value.length + ' / ' + lim; };
       msgEl.addEventListener('input', upd); upd();
     }
+    if (lead.elements.consent) lead.elements.consent.addEventListener('change', function () { if (this.checked) this.removeAttribute('aria-invalid'); });
     lead.addEventListener('submit', function (e) {
       e.preventDefault();
       var first = null;
       req.forEach(function (r) { var el = lead.elements[r[0]]; if (!el) return; var ok = r[1](el.value); el.setAttribute('aria-invalid', String(!ok)); if (!ok && !first) first = el; });
+      var cb = lead.elements.consent, cbOk = !cb || cb.checked;
+      if (cb) cb.setAttribute('aria-invalid', String(!cbOk));
       msg.hidden = false;
       if (first) { msg.classList.add('is-warn'); msgT.textContent = 'Заполните поля со звездочкой: имя, телефон, e-mail, компания и сообщение'; first.focus(); return; }
+      if (!cbOk) { msg.classList.add('is-warn'); msgT.textContent = 'Чтобы отправить заявку, подтвердите согласие на обработку персональных данных'; cb.focus(); return; }
       msg.classList.remove('is-warn'); msgT.textContent = 'Тестовая версия сайта: заявка пока не отправляется. Позвоните нам по телефону выше';
       if (!RM) drawSoon(q('.mk', msg));
     });

@@ -8,7 +8,7 @@ import re
 
 import templates as T
 from templates import (esc, slug, ru_date, head_jsonld, PHONE, PHONE_HREF, MAIL, ORG, NAV, EXPECTED_PAGES,  # noqa: F401
-                       FOOTER_SERVICES, FOOTER_COMPANY, INDUSTRIES, FAVICON, mark)
+                       FOOTER_SERVICES, FOOTER_COMPANY, FOOTER_INFO, INDUSTRIES, mark)
 
 PROSE_PHOTO_CLS = "ph prose-photo"
 # Шрифты лежат на сайте (assets/fonts): без обращения к Google Fonts, основной текст подгружается первым
@@ -87,6 +87,18 @@ def btn(label, href, kind="pen", arrow=True):
     return '<a class="btn btn-%s" href="%s">%s%s</a>' % (kind, esc(href), esc(label), arr)
 
 
+# ---------- логотип «Двойная запись»: два квадрата, оранжевое сальдо в пересечении ----------
+# Контуры рисуются currentColor, поэтому в светлой шапке знак петрольный, в темной шапке и подвале — белый.
+# Группа .dz__g раз в несколько секунд плавно поворачивается на полоборота (CSS, фигура симметрична).
+DZ_MARK = ('<svg class="dz" viewBox="0 0 120 120" aria-hidden="true"><g class="dz__g"><rect x="44" y="44" width="32" height="32" fill="#E8611A"/>'
+           '<rect x="14" y="14" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="round"/>'
+           '<rect x="44" y="44" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="round"/></g></svg>')
+FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%230D3C55'/%3E"
+           "%3Crect x='44' y='44' width='32' height='32' fill='%23E8611A'/%3E"
+           "%3Crect x='14' y='14' width='62' height='62' fill='none' stroke='%23fff' stroke-width='9' stroke-linejoin='round'/%3E"
+           "%3Crect x='44' y='44' width='62' height='62' fill='none' stroke='%23fff' stroke-width='9' stroke-linejoin='round'/%3E%3C/svg%3E")
+
+
 # ---------- каркас ----------
 def header(page, tone):
     path = "/" + page["path"]
@@ -105,22 +117,18 @@ def header(page, tone):
         '  </div>\n  <nav class="lg__sheet" id="lg-sheet" hidden aria-label="Меню">\n    %s\n'
         '    <a href="/#check">Критерии обязательного аудита <span aria-hidden="true">→</span></a>\n'
         '    <a class="lg__sheet-phone" href="%s">%s</a>\n  </nav>\n</header>\n'
-        % (tone, mark("hdr", circle=True), "".join(links), PHONE_HREF, PHONE, "\n    ".join(sheet), PHONE_HREF, PHONE))
+        % (tone, DZ_MARK, "".join(links), PHONE_HREF, PHONE, "\n    ".join(sheet), PHONE_HREF, PHONE))
 
 
 def footer():
-    svc = "".join('<li><a href="%s">%s</a></li>' % (h, esc(l)) for l, h in FOOTER_SERVICES)
-    comp = "".join('<li><a href="%s">%s</a></li>' % (h, esc(l)) for l, h in FOOTER_COMPANY)
+    col = lambda title, items: '<div><h4>%s</h4><ul>%s</ul></div>' % (title, "".join('<li><a href="%s">%s</a></li>' % (h, esc(l)) for l, h in items))
     return (
         '<footer class="ftr" data-tone="dark" aria-label="Подвал сайта">\n  <div class="wrap">\n    <div class="ftr-grid">\n'
-        '      <div class="ftr-brand">\n        <a class="ftr-logo" href="/" aria-label="Инком-Аудит, на главную"><span class="tile">%s</span>'
-        '<span><b>ИНКОМ-АУДИТ</b></span></a>\n'
-        '        <p>%s. Член СРО ААС «Содружество», ОРНЗ 12006082980</p>\n'
-        '        <a class="ftr-info" href="/info/">Обязательное раскрытие информации аудиторскими организациями</a>\n'
-        '      </div>\n      <div><h4>Услуги</h4><ul>%s</ul></div>\n      <div><h4>Компания</h4><ul>%s</ul></div>\n'
-        '      <div><h4>Контакты</h4><ul><li><a href="%s">%s</a></li><li><a href="mailto:%s">%s</a></li><li>123458, Москва, ул. Твардовского, д. 2, корп. 5</li></ul></div>\n'
-        '    </div>\n    <div class="legal"><span>© 2010–2026 %s</span></div>\n  </div>\n</footer>\n'
-        % (mark("ft", lockup=True), ORG, svc, comp, PHONE_HREF, PHONE, MAIL, MAIL, ORG))
+        '      <div class="ftr-brand">\n        <a class="ftr-logo" href="/" aria-label="Инком-Аудит, на главную">%s<span><b>ИНКОМ-АУДИТ</b><small>Аудиторская компания</small></span></a>\n      </div>\n'
+        '      %s\n      %s\n      %s\n    </div>\n'
+        '    <div class="ftr-docs"><a href="/info/">Обязательное раскрытие информации аудиторскими организациями</a><a href="/policy/">Политика обработки персональных данных</a></div>\n'
+        '    <div class="legal"><span>© 2010–2026 %s</span></div>\n  </div>\n</footer>\n'
+        % (DZ_MARK, col("Услуги", FOOTER_SERVICES), col("О компании", FOOTER_COMPANY), col("Информация", FOOTER_INFO), ORG))
 
 
 def mbar():
@@ -157,7 +165,7 @@ def strip(items, cls="strip"):
     return '<dl class="%s" style="--n:%d">%s</dl>' % (cls, len(items), cells)
 
 
-FORM_TASKS = ["Обязательный аудит", "Инициативный аудит", "Налоговый аудит", "Аудит застройщика по 214-ФЗ", "Дью дилидженс перед сделкой",
+FORM_TASKS = ["Обязательный аудит", "Инициативный аудит", "Налоговый аудит", "Дью дилидженс перед сделкой",
               "Подготовка отчетности по МСФО", "Бухгалтерские услуги", "Консалтинг и споры", "Другое"]
 
 
@@ -174,21 +182,23 @@ def lead_form(page, p="f", cls="form-sheet", heading=True):
         '      <div class="fld"><label for="%s-email">E-mail*</label><input id="%s-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>\n'
         '      <div class="fld"><label for="%s-company">Наименование компании*</label><input id="%s-company" name="company" autocomplete="organization" required></div>\n'
         '      <div class="fld"><label for="%s-msg">Сообщение*</label><textarea id="%s-msg" name="message" rows="4" maxlength="500" required></textarea><span class="counter" data-count aria-live="polite">0 / 500</span></div>\n'
-        '      <div class="fld"><label for="%s-task">Задача <span class="opt">необязательно</span></label><select id="%s-task" name="task">%s</select></div>\n'
+        '      <div class="fld"><label for="%s-task">Услуга*</label><select id="%s-task" name="task" required>%s</select></div>\n'
         '      <button class="btn btn-pen" type="submit">Отправить заявку <span class="arr" aria-hidden="true">→</span></button>\n'
-        '      <p class="consent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</p>\n'
+        '      <label class="consent" for="%s-consent"><input class="cbx" id="%s-consent" name="consent" type="checkbox" value="yes" required>'
+        '<span>Направляя форму обратной связи и предоставляя персональные данные, я выражаю согласие на обработку моих персональных данных '
+        'в соответствии с условиями <a href="/policy/">Политики обработки персональных данных</a></span></label>\n'
         '      <p class="form-msg" role="status" hidden>%s<span class="form-msg__t"></span></p>\n    </form>\n'
-        % (cls, p, aria, h, p, p, p, p, p, p, p, p, p, p, p, p, options, mk()))
+        % (cls, p, aria, h, p, p, p, p, p, p, p, p, p, p, p, p, options, p, p, mk()))
 
 
 def zayavka(page):
     return (
         '<section class="contact" id="zayavka" data-tone="dark" aria-labelledby="zayavka-h">\n  <div class="wrap contact-grid">\n'
         '    <div class="contact-l" data-rise>\n      <h2 class="h2 h2-long" id="zayavka-h">Для определения объема и стоимости услуг заполните форму обратной связи или свяжитесь с нами любым удобным способом</h2>\n'
-        '      <p class="phone-big" id="phoneTxt">%s</p>\n      <p class="email"><span id="mailTxt">%s</span></p>\n'
+        '      <p class="phone-big" id="phoneTxt">%s</p>\n'
         '      <div class="c-row">%s%s</div>\n'
-        '      <p class="geo">Офис в Москве. Работаем по всей России</p>\n    </div>\n%s  </div>\n</section>\n'
-        % (PHONE, MAIL, ibtn("Позвонить", PHONE_HREF, "phone", "white"), copy_btn(PHONE, "phoneTxt", "Скопировать номер", "line"), lead_form(page, "f")))
+        '      <p class="email"><a href="mailto:%s" id="mailTxt">%s</a></p>\n    </div>\n%s  </div>\n</section>\n'
+        % (PHONE, ibtn("Позвонить", PHONE_HREF, "phone", "white"), copy_btn(PHONE, "phoneTxt", "Скопировать номер", "line"), MAIL, MAIL, lead_form(page, "f")))
 
 
 def modal(page):
@@ -199,7 +209,7 @@ def modal(page):
         '    <div class="modal__side">\n      <p class="kicker kicker--dark">Заявка</p>\n      <h2 class="modal__h" id="modal-h">Узнать стоимость</h2>\n'
         '      <p class="modal__p">Для определения объема и стоимости услуг заполните форму или свяжитесь с нами любым удобным способом</p>\n'
         '      <div class="modal__c"><a class="modal__phone" href="%s">%s</a><a class="modal__mail" href="mailto:%s">%s</a></div>\n'
-        '      <p class="modal__geo">Офис в Москве. Работаем по всей России</p>\n    </div>\n%s  </div>\n</dialog>\n'
+        '    </div>\n%s  </div>\n</dialog>\n'
         % (ICO["x"], PHONE_HREF, PHONE, MAIL, MAIL, lead_form(page, "m", cls="form-sheet form-sheet--modal", heading=False)))
 
 
@@ -588,7 +598,7 @@ def render_home(ctx, page):
     st_ = "".join('<li class="step"><span class="node">%d%s</span><h3>%s</h3><p>%s</p></li>' % (i, mk(), esc(a), esc(b)) for i, (a, b) in enumerate(steps, 1))
     process = ('<section class="sec-band cv" id="process" data-tone="light" aria-labelledby="proc-h"><div class="wrap"><div class="sec-head sec-head--one" data-rise><h2 class="h2" id="proc-h">%s</h2></div>'
                '<ol class="proc" id="proc"><li class="track" aria-hidden="true"><span class="fill" id="fill"></span></li>%s</ol>'
-               '<p class="proc-more"><a class="link" href="/zakazat-audit/">Как заказать аудит: подробно о каждом шаге <span class="arr" aria-hidden="true">→</span></a></p></div></section>\n'
+               '</div></section>\n'
                % (esc(page.get("process_h2") or "Как мы строим нашу работу"), st_)) if steps else ""
 
     posts = article_cards(ctx, 3)
