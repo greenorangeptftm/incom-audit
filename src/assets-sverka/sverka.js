@@ -394,4 +394,13 @@
     e.preventDefault(); go(id, true);
   });
   if (location.hash.length > 1) setTimeout(function () { go(location.hash.slice(1), false); }, 80);
+
+  /* ——— iOS Safari 26: в позиции scrollY = 0 статус-бар и нижняя панель заливаются сплошным цветом, а от 1px и дальше сквозь
+     «стекло» видна сама страница (фото на главной). Держим прокрутку не в нуле: 1px глазом не заметен. Только тач-устройства ——— */
+  if (window.matchMedia('(hover: none) and (pointer: coarse)').matches && location.hash.length < 2) {
+    var nudgeT, nudge = function () { if (window.scrollY === 0 && d.documentElement.scrollHeight > window.innerHeight + 2) window.scrollTo({ top: 1, left: 0, behavior: 'instant' }); };
+    window.addEventListener('load', function () { setTimeout(nudge, 60); });
+    window.addEventListener('pageshow', function () { setTimeout(nudge, 60); });
+    window.addEventListener('scroll', function () { clearTimeout(nudgeT); nudgeT = setTimeout(nudge, 260); }, { passive: true });
+  }
 })();

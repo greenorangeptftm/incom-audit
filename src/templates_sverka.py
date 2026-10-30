@@ -158,9 +158,9 @@ def base(ctx, page, body, tone="light", pre=""):
         '%s<link rel="stylesheet" href="/assets/sverka.css?v=%s">\n%s%s'
         '<!-- Яндекс.Вебмастер: <meta name="yandex-verification" content="…"> -->\n'
         '<!-- Яндекс.Метрика: вставить код счётчика перед </head> -->\n'
-        # .tint: две полоски у краев экрана в цвет страницы. iOS Safari 26 красит статус-бар и нижнюю панель цветом
-        # fixed-элемента у самого края (meta theme-color не читает), а наша шапка плавает с отступом. См. sverka.css
-        '</head>\n<body>\n<i class="tint tint-t" aria-hidden="true"></i><i class="tint tint-b" aria-hidden="true"></i>\n'
+        # .tint: невидимая полоска у верхнего края в цвет темной шапки, только на главной и только на телефонах. iOS Safari 26
+        # в самом верху страницы заливает область статус-бара цветом fixed-элемента у края (theme-color не читает). См. sverka.css
+        '</head>\n<body>\n<i class="tint" aria-hidden="true"></i>\n'
         '<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s%s'
         '<script src="/assets/sverka.js?v=%s" defer></script>\n</body>\n</html>\n'
         % (tone, robots, esc(page["title"]), esc(page["description"]), url, "article" if page["kind"] == "article" else "website",
