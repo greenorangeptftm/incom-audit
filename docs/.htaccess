@@ -1,0 +1,100 @@
+# Сборка: src/build.py. HTTPS, без www, 404, сжатие, кэш, переадресация старых адресов
+AddDefaultCharset UTF-8
+Options -Indexes
+AddType image/webp .webp
+AddType font/woff2 .woff2
+ErrorDocument 404 /incom-audit/404.html
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+# если хостинг снимает HTTPS на прокси и условие зацикливает, заменить %{HTTPS} на %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} !^greenorangeptftm\.github\.io$ [NC]
+RewriteRule ^ https://greenorangeptftm.github.io/incom-audit%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/javascript application/json image/svg+xml
+</IfModule>
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType text/html "access plus 0 seconds"
+ExpiresByType text/css "access plus 1 year"
+ExpiresByType application/javascript "access plus 1 year"
+ExpiresByType image/webp "access plus 30 days"
+ExpiresByType image/jpeg "access plus 30 days"
+ExpiresByType image/png "access plus 30 days"
+ExpiresByType image/svg+xml "access plus 30 days"
+ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+# старые адреса сайта
+Redirect 301 /incom-audit/главная-страница/ https://greenorangeptftm.github.io/incom-audit/
+Redirect 301 /incom-audit/auditorskie-uslugi/ https://greenorangeptftm.github.io/incom-audit/audit/
+Redirect 301 /incom-audit/auditorskie-uslugi/audit-biznes-processov/ https://greenorangeptftm.github.io/incom-audit/audit/
+Redirect 301 /incom-audit/audit-2/audit-biznes-processov/ https://greenorangeptftm.github.io/incom-audit/audit/
+Redirect 301 /incom-audit/auditorskie-uslugi/audit-stroika/ https://greenorangeptftm.github.io/incom-audit/audit/
+Redirect 301 /incom-audit/вопрос-ответ/ https://greenorangeptftm.github.io/incom-audit/audit/
+Redirect 301 /incom-audit/audit-biz-process/ https://greenorangeptftm.github.io/incom-audit/audit/
+Redirect 301 /incom-audit/konsalting/due-diligence/ https://greenorangeptftm.github.io/incom-audit/audit/due-diligence/
+Redirect 301 /incom-audit/auditorskie-uslugi/due-diligence/ https://greenorangeptftm.github.io/incom-audit/audit/due-diligence/
+Redirect 301 /incom-audit/audit-2/due-diligence/ https://greenorangeptftm.github.io/incom-audit/audit/due-diligence/
+Redirect 301 /incom-audit/auditorskie-uslugi/iniciativnyj-audit/ https://greenorangeptftm.github.io/incom-audit/audit/iniciativnyj/
+Redirect 301 /incom-audit/audit-2/iniciativnyj-audit/ https://greenorangeptftm.github.io/incom-audit/audit/iniciativnyj/
+Redirect 301 /incom-audit/auditorskie-uslugi/express-audit/ https://greenorangeptftm.github.io/incom-audit/audit/iniciativnyj/
+Redirect 301 /incom-audit/audit-2/express-audit/ https://greenorangeptftm.github.io/incom-audit/audit/iniciativnyj/
+Redirect 301 /incom-audit/auditorskie-uslugi/nalogovyj-audit/ https://greenorangeptftm.github.io/incom-audit/audit/nalogovyj/
+Redirect 301 /incom-audit/audit-2/nalogovyj-audit/ https://greenorangeptftm.github.io/incom-audit/audit/nalogovyj/
+Redirect 301 /incom-audit/auditorskie-uslugi/objazatelnyj-audit-buhgalterskoi-otchetnosti/ https://greenorangeptftm.github.io/incom-audit/audit/obyazatelnyj/
+Redirect 301 /incom-audit/audit-2/objazatelnyj-audit/ https://greenorangeptftm.github.io/incom-audit/audit/obyazatelnyj/
+Redirect 301 /incom-audit/info-portal/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/info-portal/articles-all/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/info-portal/info-handbook/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/info-portal/usefull-ref/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/category/news/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/03/23/ndfl-pri-perechiclenii-deneg/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/03/26/esli-opozdat-so-zdachei-declaracii/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/03/27/razmer-mrot/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/05/11/d0-bf-d0-b5-d1-80-d0-b5-d1-87-d0-b5-d0-bd-d1-8c-d1-80-d0-b0-d1-81-d1-85-d0-be-d0-b4-d0-be-d0-b2-d0-bf-d0-be-d0-bd-d0-b0-d0-bb-d0-be-d0-b3-d1-83-d0-bd-d0-b0-d0-bf-d1-80-d0-b8-d0-b1-d1-8b-d0-bb/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/08/21/article-audit-statutory-audit/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/08/23/article-ifrs-transformation/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/08/26/article-ifrs-consolidated-financial-statements/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/08/26/article-ifrs-consolidation/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/09/05/nalog-na-pribyl-i-rashody-na-garantijnyj-remont/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/09/06/auditorskoe-zakljuchenie-vidy-i-adresa-predstavlenija-2/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/09/18/dolzhny-li-malye-predprijatija-prohodit-objazatelnyj-audit/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/10/03/audit-osnovnyh-sredstv/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/10/03/kto-dolzhen-prohodit-objazatelnyj-audit/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/10/06/ndfl-pri-prodazhe-imushhestva-nerezidentom/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/2018/11/09/sroki-uplaty-naloga-i-avansovogo-platezha-pri-usn/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/author/admin/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/author/administrator/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/category/articles/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/category/articles/info-audit/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/category/articles/info-ifrs/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/category/articles/info-nalog/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/category/usefull-info/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/info-portal/articles-all/articles-accounting/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/info-portal/articles-all/articles-audit/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/info-portal/articles-all/articles-audit/article-audit-audit-report/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/info-portal/articles-all/articles-ifrs/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/info-portal/articles-all/articles-tax/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/info-portal/blog/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/tag/аудит/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/tag/мсфо/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/tag/статьи/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/tag/info-nalog/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/tag/konsolidacija/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/tag/objazatelnyj-audit/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/tag/transformacija/ https://greenorangeptftm.github.io/incom-audit/blog/
+Redirect 301 /incom-audit/buh-uslugi/ https://greenorangeptftm.github.io/incom-audit/buhgalterskie-uslugi/
+Redirect 301 /incom-audit/d0-b0-d1-83-d0-b4-d0-b8-d1-82-d0-be-d1-80-d1-81-d0-ba-d0-b0-d1-8f-d0-ba-d0-be-d0-bc-d0-bf-d0-b0-d0-bd-d0-b8-d1-8f/info/ https://greenorangeptftm.github.io/incom-audit/info/
+Redirect 301 /incom-audit/nalog-consut/ https://greenorangeptftm.github.io/incom-audit/konsalting/
+Redirect 301 /incom-audit/law-service/ https://greenorangeptftm.github.io/incom-audit/konsalting/
+Redirect 301 /incom-audit/contacts/ https://greenorangeptftm.github.io/incom-audit/kontakty/
+Redirect 301 /incom-audit/ifrs/ https://greenorangeptftm.github.io/incom-audit/msfo/
+Redirect 301 /incom-audit/auditorskie-uslugi/audit-msfo-otchetnosti/ https://greenorangeptftm.github.io/incom-audit/msfo/
+Redirect 301 /incom-audit/audit-2/audit-msfo-otchetnosti/ https://greenorangeptftm.github.io/incom-audit/msfo/
+Redirect 301 /incom-audit/ifrs/services-consolidation/ https://greenorangeptftm.github.io/incom-audit/msfo/
+Redirect 301 /incom-audit/d0-b0-d1-83-d0-b4-d0-b8-d1-82-d0-be-d1-80-d1-81-d0-ba-d0-b0-d1-8f-d0-ba-d0-be-d0-bc-d0-bf-d0-b0-d0-bd-d0-b8-d1-8f/about-company/ https://greenorangeptftm.github.io/incom-audit/o-kompanii/

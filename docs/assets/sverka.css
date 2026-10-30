@@ -457,6 +457,8 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 .consent.is-bad{color:var(--pen)}
 .form-msg{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:6px;background:var(--pen-wash);color:var(--pen-text);font-weight:600;font-size:15.5px}
 .form-msg.is-warn .mk{display:none}
+.hp{position:absolute!important;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}   /* ловушка для роботов: людям поле не видно */
+form.is-busy .btn{opacity:.65;pointer-events:none}
 .form-msg .mk{width:24px;height:24px}
 @media (max-width:1000px){.contact-grid{grid-template-columns:1fr}}
 @media (max-width:560px){.c-row .btn{flex:1 1 auto}}

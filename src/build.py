@@ -307,7 +307,7 @@ def clean_dir(out):
     out.mkdir(parents=True, exist_ok=True)
 
 
-def build(theme, out, site_url, photos_dir, noindex):
+def build(theme, out, site_url, photos_dir, noindex, form_endpoint=""):
     sys.path.insert(0, str(SRC))
     templates = importlib.import_module("templates" if theme == "pechat" else "templates_" + theme)
     assets_src = SRC / ("assets" if theme == "pechat" else "assets-" + theme)
@@ -348,7 +348,7 @@ def build(theme, out, site_url, photos_dir, noindex):
     warns, used_photos = [], set()
     for page in pages:
         root = rel_root(page["path"])
-        ctx = dict(site_url=site_url, assets_url=assets_url, asset_v=asset_v, noindex=noindex, root=root, theme=theme,
+        ctx = dict(site_url=site_url, assets_url=assets_url, asset_v=asset_v, noindex=noindex, root=root, theme=theme, form_endpoint=form_endpoint,
                    photo_prefix=root + photo_rel, photos=photos, pages=pages, by_path=by_path,
                    articles=articles, today=today, defs=defs_svg)
         for key in (page.get("photo"),) + tuple(s.get("photo") for s in page.get("sections") or [] if isinstance(s, dict)):
@@ -388,7 +388,7 @@ def build(theme, out, site_url, photos_dir, noindex):
         # 404 отдается по любому несуществующему адресу, в том числе вложенному, поэтому все ссылки абсолютные от корня сайта
         from urllib.parse import urlparse
         root404 = urlparse(site_url).path.rstrip("/") + "/"
-        ctx = dict(site_url=site_url, assets_url=assets_url, asset_v=asset_v, noindex=True, root=root404, theme=theme,
+        ctx = dict(site_url=site_url, assets_url=assets_url, asset_v=asset_v, noindex=True, root=root404, theme=theme, form_endpoint=form_endpoint,
                    photo_prefix=root404 + photo_rel, photos=photos, pages=pages, by_path=by_path, articles=articles, today=today, defs=defs_svg)
         html = rewrite_links(templates.render_404(ctx), root404)
         if theme == "sverka":
@@ -439,6 +439,27 @@ def build(theme, out, site_url, photos_dir, noindex):
     (out / "robots.txt").write_text(robots, encoding="utf-8")
     (out / ".nojekyll").write_text("", encoding="utf-8")
 
+    # .htaccess для Apache-хостинга (Jino): HTTPS и адрес без www, своя 404, сжатие, кэш, 301 со старых адресов. GitHub Pages его не читает
+    from urllib.parse import urlparse as _up
+    _u = _up(site_url)
+    _base = _u.path.rstrip("/") + "/"
+    redirects = []
+    for page in sorted(pages, key=lambda p: p["path"]):
+        for old in page.get("redirect_from") or []:
+            redirects.append("Redirect 301 %s%s %s/%s" % (_base, old, site_url, page["path"]))
+    ht = ("# Сборка: src/build.py. HTTPS, без www, 404, сжатие, кэш, переадресация старых адресов\n"
+          "AddDefaultCharset UTF-8\nOptions -Indexes\nAddType image/webp .webp\nAddType font/woff2 .woff2\n"
+          "ErrorDocument 404 %s404.html\n\n"
+          "<IfModule mod_rewrite.c>\nRewriteEngine On\n"
+          "# если хостинг снимает HTTPS на прокси и условие зацикливает, заменить %%{HTTPS} на %%{HTTP:X-Forwarded-Proto} !https\n"
+          "RewriteCond %%{HTTPS} !=on [OR]\nRewriteCond %%{HTTP_HOST} !^%s$ [NC]\nRewriteRule ^ %s%%{REQUEST_URI} [R=301,L]\n</IfModule>\n\n"
+          "<IfModule mod_deflate.c>\nAddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/javascript application/json image/svg+xml\n</IfModule>\n\n"
+          "<IfModule mod_expires.c>\nExpiresActive On\nExpiresByType text/html \"access plus 0 seconds\"\nExpiresByType text/css \"access plus 1 year\"\n"
+          "ExpiresByType application/javascript \"access plus 1 year\"\nExpiresByType image/webp \"access plus 30 days\"\nExpiresByType image/jpeg \"access plus 30 days\"\n"
+          "ExpiresByType image/png \"access plus 30 days\"\nExpiresByType image/svg+xml \"access plus 30 days\"\nExpiresByType font/woff2 \"access plus 1 year\"\n</IfModule>\n\n"
+          "# старые адреса сайта\n%s\n") % (_base, (_u.hostname or "").replace(".", "\\."), site_url, "\n".join(redirects))
+    (out / ".htaccess").write_text(ht, encoding="utf-8")
+
     print("Собрано страниц: %d (тема %s) → %s" % (len(pages), theme, out))
     for p in pages:
         print("  /%s" % p["path"])
@@ -454,6 +475,7 @@ def main(argv=None):
     ap.add_argument("--theme", choices=("pechat", "sverka"), default="pechat")
     ap.add_argument("--out", help="папка вывода (по умолчанию: ../site/full для pechat, docs для sverka)")
     ap.add_argument("--site-url", help="адрес сайта без завершающего «/» (для canonical, sitemap, JSON-LD)")
+    ap.add_argument("--form-endpoint", default="", help="адрес обработчика заявок, например /api/send.php (без него форма в тестовом режиме)")
     ap.add_argument("--photos", help="папка с фотографиями (по умолчанию ../../incom-redesign/site/assets/photos)")
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--noindex", dest="noindex", action="store_true", help="закрыть от индексации (по умолчанию)")
@@ -471,7 +493,7 @@ def main(argv=None):
     if not photos_dir.exists():
         print("ОШИБКА: папка с фотографиями не найдена: %s" % photos_dir)
         return 1
-    return build(a.theme, out.resolve(), site_url.rstrip("/"), photos_dir.resolve(), a.noindex)
+    return build(a.theme, out.resolve(), site_url.rstrip("/"), photos_dir.resolve(), a.noindex, a.form_endpoint)
 
 
 if __name__ == "__main__":

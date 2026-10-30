@@ -301,29 +301,53 @@
     });
   });
 
-  /* ——— заявка: обязательные поля, счетчик символов; бланк внизу страницы и в окне ——— */
+  /* ——— заявка: обязательные поля, счетчик символов; бланк внизу страницы и в окне. Отправка на адрес из <body data-endpoint>
+     (сборка с --form-endpoint, обработчик server/send.php); без адреса — тестовый режим с подсказкой позвонить ——— */
+  var EP = d.body.getAttribute('data-endpoint') || '', T0 = Date.now();
+  var MSG = {
+    fields: 'Заполните поля со звездочкой: имя, телефон, e-mail, компания и сообщение',
+    consent: 'Чтобы отправить заявку, подтвердите согласие на обработку персональных данных',
+    test: 'Тестовая версия сайта: заявка пока не отправляется. Позвоните нам по телефону выше',
+    ok: 'Спасибо, заявка отправлена. Мы свяжемся с вами в ближайшее время',
+    fail: 'Не удалось отправить заявку. Позвоните нам: ' + (d.body.getAttribute('data-phone') || '') + ' или напишите на ' + (d.body.getAttribute('data-mail') || '')
+  };
   qa('form[data-lead]').forEach(function (lead) {
-    var msg = q('.form-msg', lead), msgT = q('.form-msg__t', lead), msgEl = lead.elements.message, cnt = q('[data-count]', lead);
+    var msg = q('.form-msg', lead), msgT = q('.form-msg__t', lead), msgEl = lead.elements.message, cnt = q('[data-count]', lead), btn = q('button[type="submit"]', lead);
     var req = [['name', function (v) { return !!v.trim(); }], ['phone', function (v) { return v.replace(/\D/g, '').length >= 10; }],
                ['email', function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()); }], ['company', function (v) { return !!v.trim(); }],
                ['message', function (v) { return !!v.trim(); }]];
+    var upd = function () {};
     if (msgEl && cnt) {
       var lim = Number(msgEl.getAttribute('maxlength')) || 500;
-      var upd = function () { if (msgEl.value.length > lim) msgEl.value = msgEl.value.slice(0, lim); cnt.textContent = msgEl.value.length + ' / ' + lim; };
+      upd = function () { if (msgEl.value.length > lim) msgEl.value = msgEl.value.slice(0, lim); cnt.textContent = msgEl.value.length + ' / ' + lim; };
       msgEl.addEventListener('input', upd); upd();
     }
     if (lead.elements.consent) lead.elements.consent.addEventListener('change', function () { if (this.checked) this.removeAttribute('aria-invalid'); });
+    var show = function (text, warn) { msg.hidden = false; msg.classList.toggle('is-warn', !!warn); msgT.textContent = text; if (!warn && !RM) drawSoon(q('.mk', msg)); };
+    var busy = false;
     lead.addEventListener('submit', function (e) {
       e.preventDefault();
+      if (busy) return;
       var first = null;
       req.forEach(function (r) { var el = lead.elements[r[0]]; if (!el) return; var ok = r[1](el.value); el.setAttribute('aria-invalid', String(!ok)); if (!ok && !first) first = el; });
       var cb = lead.elements.consent, cbOk = !cb || cb.checked;
       if (cb) cb.setAttribute('aria-invalid', String(!cbOk));
-      msg.hidden = false;
-      if (first) { msg.classList.add('is-warn'); msgT.textContent = 'Заполните поля со звездочкой: имя, телефон, e-mail, компания и сообщение'; first.focus(); return; }
-      if (!cbOk) { msg.classList.add('is-warn'); msgT.textContent = 'Чтобы отправить заявку, подтвердите согласие на обработку персональных данных'; cb.focus(); return; }
-      msg.classList.remove('is-warn'); msgT.textContent = 'Тестовая версия сайта: заявка пока не отправляется. Позвоните нам по телефону выше';
-      if (!RM) drawSoon(q('.mk', msg));
+      if (first) { show(MSG.fields, true); first.focus(); return; }
+      if (!cbOk) { show(MSG.consent, true); cb.focus(); return; }
+      if (!EP) { show(MSG.test, false); return; }
+      var val = function (n) { var el = lead.elements[n]; return el ? String(el.value || '') : ''; };
+      var payload = { name: val('name'), phone: val('phone'), email: val('email'), company: val('company'), message: val('message'), task: val('task'),
+                      consent: cbOk ? 'yes' : 'no', website: val('website'), elapsed: Date.now() - T0, page: location.href, source: lead.id };
+      busy = true; lead.classList.add('is-busy'); if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); }
+      msg.hidden = true;
+      var done = function (ok) {
+        busy = false; lead.classList.remove('is-busy'); if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); }
+        if (ok) { lead.reset(); upd(); qa('[aria-invalid]', lead).forEach(function (el) { el.removeAttribute('aria-invalid'); }); show(MSG.ok, false); }
+        else show(MSG.fail, true);
+      };
+      fetch(EP, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), credentials: 'same-origin' })
+        .then(function (r) { return r.json().then(function (j) { return j && j.ok === true; }, function () { return false; }); }, function () { return false; })
+        .then(done);
     });
   });
 

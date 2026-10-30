@@ -1,0 +1,5 @@
+# Папка обработчика формы: снаружи доступен только send.php
+<FilesMatch "^(config.*\.php|.*\.example\.php|.*\.md)$">
+    Require all denied
+</FilesMatch>
+Options -Indexes

@@ -20,6 +20,12 @@ _FONT_CSS_PATH = pathlib.Path(__file__).resolve().parent / "assets-sverka" / "fo
 _FONT_CSS = "\n".join(l for l in _FONT_CSS_PATH.read_text(encoding="utf-8").splitlines() if l.startswith("@font-face"))
 
 
+def body_attrs(ctx):
+    """Адрес обработчика заявок (сборка с --form-endpoint) и контакты для сообщения об ошибке отправки."""
+    ep = ctx.get("form_endpoint") or ""
+    return (' data-endpoint="%s"' % esc(ep) if ep else "") + ' data-phone="%s" data-mail="%s"' % (PHONE, MAIL)
+
+
 def font_head(ctx):
     css = _FONT_CSS.replace("url(", "url(%sassets/fonts/" % ctx["root"])
     return FONT_HEAD + "<style>" + css + "</style>\n"
@@ -165,12 +171,12 @@ def base(ctx, page, body, tone="light", pre=""):
         '%s<link rel="stylesheet" href="/assets/sverka.css?v=%s">\n%s%s'
         '<!-- Яндекс.Вебмастер: <meta name="yandex-verification" content="…"> -->\n'
         '<!-- Яндекс.Метрика: вставить код счётчика перед </head> -->\n'
-        '</head>\n<body>\n'
+        '</head>\n<body%s>\n'
         '<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s'
         '<script src="/assets/sverka.js?v=%s" defer></script>\n</body>\n</html>\n'
         % (tone, robots, esc(page["title"]), esc(page["description"]), url, "article" if page["kind"] == "article" else "website",
            esc(page.get("og_title") or page["h1"]), esc(page["description"]), url, og_img, "#0D3C55" if tone == "dark" else "#EEF2F4", font_head(ctx), ctx.get("asset_v", "1"), pre,
-           head_jsonld(ctx, page), header(page, tone), body, footer(page), modal(page), ctx.get("asset_v", "1")))
+           head_jsonld(ctx, page), body_attrs(ctx), header(page, tone), body, footer(page), modal(page), ctx.get("asset_v", "1")))
 
 
 # ---------- общие блоки ----------
@@ -199,12 +205,13 @@ def lead_form(page, p="f", cls="form-sheet", heading=True):
         '      <div class="fld"><label for="%s-company">Наименование компании*</label><input id="%s-company" name="company" autocomplete="organization" required></div>\n'
         '      <div class="fld"><label for="%s-msg">Сообщение*</label><textarea id="%s-msg" name="message" rows="4" maxlength="500" required></textarea><span class="counter" data-count aria-live="polite">0 / 500</span></div>\n'
         '      <div class="fld"><label for="%s-task">Услуга*</label><select id="%s-task" name="task">%s</select></div>\n'
+        '      <div class="hp" aria-hidden="true"><label for="%s-site">Сайт</label><input id="%s-site" name="website" tabindex="-1" autocomplete="off"></div>\n'
         '      <button class="btn btn-pen" type="submit">Отправить заявку <span class="arr" aria-hidden="true">→</span></button>\n'
         '      <label class="consent" for="%s-consent"><input class="cbx" id="%s-consent" name="consent" type="checkbox" value="yes" required>'
         '<span>Направляя форму обратной связи и предоставляя персональные данные, я выражаю согласие на обработку моих персональных данных '
         'в соответствии с условиями <a href="/policy/">Политики обработки персональных данных</a></span></label>\n'
         '      <p class="form-msg" role="status" hidden>%s<span class="form-msg__t"></span></p>\n    </form>\n'
-        % (cls, p, aria, h, p, p, p, p, p, p, p, p, p, p, p, p, options, p, p, mk()))
+        % (cls, p, aria, h, p, p, p, p, p, p, p, p, p, p, p, p, options, p, p, p, p, mk()))
 
 
 def zayavka(page):
