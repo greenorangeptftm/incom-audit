@@ -3,7 +3,7 @@
    (см. .htaccess рядом; лучше всего вынести папку server выше корня сайта и поправить require в send.php). */
 return [
     'telegram_token'   => '123456789:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',   // токен от @BotFather
-    'telegram_chat_id' => '-1001234567890',                                 // чат или группа; узнать: написать боту /id или python3 tools/tg_chats.py
+    'telegram_chat_id' => '-1004342603934',                                 // группа «заявки» (дал заказчик 30.10.2026); проверить: /id боту в группе
     'telegram_webhook_secret' => 'длинная случайная строка',                 // создается tools/tg_webhook.py set ... и должна совпадать здесь
     'mail_to'          => 'help@incom-consult.ru',
     'mail_from'        => 'site@incom-consult.ru',                          // ящик на домене; с него уходят письма

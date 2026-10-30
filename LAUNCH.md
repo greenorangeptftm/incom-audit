@@ -45,8 +45,8 @@ python3 src/build.py --theme sverka --out docs --site-url https://incom-consult.
 
 `config.local.php` (значения на сервере, в git их нет):
 - `telegram_token` — токен бота от @BotFather.
-- `telegram_chat_id` — id группы или чата, куда писать. Узнать: добавить бота в группу и отправить там `/id`
-  (после установки webhook) или `python3 server/tools/tg_chats.py` (до установки webhook).
+- `telegram_chat_id` = `-1004342603934` (группа для заявок, передана 30.10.2026). Бот должен быть добавлен в эту группу.
+  Если чат поменяется: отправить боту в группе `/id` (после установки webhook) или `python3 server/tools/tg_chats.py` (до нее).
 - `telegram_webhook_secret` — секрет для кнопок (см. ниже).
 - `mail_to` = `help@incom-consult.ru`; `mail_from` — ящик на домене (можно тот же `help@`, можно завести `site@`).
   Без `smtp` письмо уходит через `mail()` хостинга, этого на Jino достаточно; при проблемах с доставкой заполнить `smtp`
@@ -58,7 +58,7 @@ python3 src/build.py --theme sverka --out docs --site-url https://incom-consult.
 сообщение редактируется (в заголовке статус, имя и ник сотрудника, время), кнопка меняется на «↩️ Вернуть в работу».
 Для этого нужен webhook с секретом:
 ```
-sh server/tools/save-token.sh TELEGRAM_BOT_TOKEN            # токен сохраняется в ~/.config/incom-audit/secrets.env (600)
+sh server/tools/save-token.sh TELEGRAM_BOT_TOKEN            # токен сохраняется в ~/.config/incom-audit/secrets.env (600); в чаты и git не вставлять
 python3 server/tools/tg_webhook.py set https://incom-consult.ru/api/tg.php
 python3 server/tools/tg_webhook.py show-secret               # это значение → telegram_webhook_secret в config.local.php
 python3 server/tools/tg_webhook.py info                      # проверка: url стоит, last_error пустой
