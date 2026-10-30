@@ -384,16 +384,15 @@
   if (location.hash.length > 1) setTimeout(function () { go(location.hash.slice(1), false); }, 80);
 
   /* ——— iOS Safari 26: под статус-баром сквозь стекло видно то, что ушло за верхний край окна, а в самой верхней точке
-     (scrollY = 0) там ничего нет, и Safari заливает его сплошным цветом фона. На главной для телефонов hero выше на
-     RW = --rw (sverka.css), эти пиксели заняты продолжением фото, и страница при открытии сразу стоит на RW: кадр тот же,
-     что без разбега, но под часами лежит фото. Если страницу оттянули в самый верх, мягко возвращаем ее на разбег ——— */
+     (scrollY = 0) там ничего нет, и Safari заливает его фоном body. На главной для телефонов hero выше на RW = --rw
+     (sverka.css), эти пиксели заняты продолжением фото, и страница при открытии сразу стоит на RW: кадр тот же, что без
+     разбега, но под часами лежит фото. Назад на разбег страницу не возвращаем: если ее оттянули в самый верх, под часами
+     окажется фон body, а он в цвет неба у края фото (--edge), так что скачок не нужен ——— */
   if (RW > 0 && location.hash.length < 2) {
-    var rwT, toRunway = function (smooth) {
-      if (d.documentElement.scrollHeight > window.innerHeight + RW && window.scrollY < RW) window.scrollTo({ top: RW, left: 0, behavior: (smooth && !RM) ? 'smooth' : 'instant' });
+    var toRunway = function () {
+      if (d.documentElement.scrollHeight > window.innerHeight + RW && window.scrollY < RW) window.scrollTo({ top: RW, left: 0, behavior: 'instant' });
     };
-    toRunway(false);
-    window.addEventListener('load', function () { toRunway(false); });
-    window.addEventListener('pageshow', function () { toRunway(false); });
-    window.addEventListener('scroll', function () { clearTimeout(rwT); rwT = setTimeout(function () { if (window.scrollY < RW / 2) toRunway(true); }, 400); }, { passive: true });
+    toRunway();
+    window.addEventListener('load', toRunway);
   }
 })();
