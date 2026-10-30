@@ -158,9 +158,7 @@ def base(ctx, page, body, tone="light", pre=""):
         '%s<link rel="stylesheet" href="/assets/sverka.css?v=%s">\n%s%s'
         '<!-- Яндекс.Вебмастер: <meta name="yandex-verification" content="…"> -->\n'
         '<!-- Яндекс.Метрика: вставить код счётчика перед </head> -->\n'
-        # .tint: невидимая полоска у верхнего края в цвет темной шапки, только на главной и только на телефонах. iOS Safari 26
-        # в самом верху страницы заливает область статус-бара цветом fixed-элемента у края (theme-color не читает). См. sverka.css
-        '</head>\n<body>\n<i class="tint" aria-hidden="true"></i>\n'
+        '</head>\n<body>\n'
         '<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s%s'
         '<script src="/assets/sverka.js?v=%s" defer></script>\n</body>\n</html>\n'
         % (tone, robots, esc(page["title"]), esc(page["description"]), url, "article" if page["kind"] == "article" else "website",
