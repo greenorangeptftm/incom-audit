@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 120" role="img" aria-label="Инком-Аудит, аудиторская компания">
-  <!-- Текст набран шрифтом Onest; для печати перевести в кривые -->
-  <rect x="44" y="44" width="32" height="32" fill="#E8611A"/>
-  <rect x="14" y="14" width="62" height="62" fill="none" stroke="#0D3C55" stroke-width="9" stroke-linejoin="round"/>
-  <rect x="44" y="44" width="62" height="62" fill="none" stroke="#0D3C55" stroke-width="9" stroke-linejoin="round"/>
-  <text x="142" y="63" font-family="Onest, Arial, sans-serif" font-weight="700" font-size="30" letter-spacing="1.6" fill="#0D3C55">ИНКОМ-АУДИТ</text>
-  <text x="143" y="87" font-family="Onest, Arial, sans-serif" font-weight="500" font-size="13.5" letter-spacing=".4" fill="#5B7482">аудиторская компания</text>
-</svg>

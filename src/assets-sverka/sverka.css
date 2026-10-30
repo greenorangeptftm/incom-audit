@@ -103,16 +103,15 @@ button,input,select{font:inherit;color:inherit}
 .lg__brand b{display:block;font:700 16.5px/1 var(--f);letter-spacing:.04em}
 .lg__brand small{display:block;font:500 11.5px/1.2 var(--f);letter-spacing:.02em;opacity:.75;margin-top:4px}
 /* знак «Двойная запись»: раз в 8 секунд плавный поворот на полоборота вокруг оранжевого сальдо (фигура симметрична, стык незаметен) */
-.dz{display:block;overflow:visible}
-/* «Обмен»: контуры меняются местами по дуге вокруг сальдо, не наклоняясь (группа крутится, прямоугольник внутри крутится обратно);
-   сальдо в момент встречи делает четверть оборота и пульсирует. Фигура симметрична, стык цикла не виден. Только CSS */
-.dz__o{transform-box:view-box;transform-origin:50% 50%;animation:dz-orbit 5.2s cubic-bezier(.65,0,.35,1) infinite}
-.dz__q{transform-box:fill-box;transform-origin:center;animation:dz-hold 5.2s cubic-bezier(.65,0,.35,1) infinite}
-.dz__c{transform-box:fill-box;transform-origin:center;animation:dz-core 5.2s cubic-bezier(.65,0,.35,1) infinite}
-@keyframes dz-orbit{0%,62%{transform:rotate(0)}100%{transform:rotate(180deg)}}
-@keyframes dz-hold{0%,62%{transform:rotate(0)}100%{transform:rotate(-180deg)}}
-@keyframes dz-core{0%,62%{transform:scale(1) rotate(0)}81%{transform:scale(1.22) rotate(45deg)}100%{transform:scale(1) rotate(90deg)}}
-@media (prefers-reduced-motion:reduce){.dz__o,.dz__q,.dz__c{animation:none}}
+/* знак «Тает», анимация «Одним росчерком»: кольцо рисуется от разрыва (0–38%), затем галочка (38–52%), пауза,
+   кольцо снимается (58–86%), галочка (86–100%). Скрытое состояние = длина + 8, зазор = длина + 16: иначе из-за круглых
+   концов штриха в «пустом» состоянии виден кружок. Без анимации (reduced-motion) dashoffset = 0, знак нарисован целиком */
+.sv{display:block;overflow:visible}
+.sv__r{stroke-dasharray:502.7 518.7;animation:sv-ring 6s linear infinite}
+.sv__t{stroke-dasharray:230.0 246.0;animation:sv-tick 6s linear infinite}
+@keyframes sv-ring{0%{stroke-dashoffset:510.7}38%{stroke-dashoffset:0}58%{stroke-dashoffset:0}86%{stroke-dashoffset:-510.7}100%{stroke-dashoffset:-510.7}}
+@keyframes sv-tick{0%,38%{stroke-dashoffset:238.0}52%{stroke-dashoffset:0}86%{stroke-dashoffset:0}100%{stroke-dashoffset:-238.0}}
+@media (prefers-reduced-motion:reduce){.sv__r,.sv__t{animation:none}}
 .lg__links{position:relative;display:flex;align-items:center;margin-left:auto}
 .lg__links a{position:relative;z-index:1;padding:10px 12px;border-radius:999px;color:inherit;text-decoration:none;font:500 15px/1 var(--f);white-space:nowrap;opacity:.88;transition:opacity .2s}
 .lg__links a:hover,.lg__links a[aria-current="page"]{opacity:1}
@@ -458,7 +457,7 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 .ftr-grid{display:grid;grid-template-columns:minmax(0,4fr) repeat(3,minmax(0,2.6fr));gap:40px}
 .ftr-brand{display:grid;gap:18px;align-content:start}
 .ftr-logo{display:flex;align-items:center;gap:14px;color:#fff;text-decoration:none}
-.ftr-logo .dz{width:56px;height:56px;flex:none}
+.ftr-logo .sv{width:56px;height:56px;flex:none}
 .ftr-logo b{display:block;font:700 18px/1 var(--f);letter-spacing:.04em}
 .ftr-logo small{display:block;font:500 12.5px/1.2 var(--f);letter-spacing:.02em;opacity:.75;margin-top:5px}
 .ftr h4{margin-bottom:14px;font:600 14px/1.3 var(--f);color:#fff;letter-spacing:.02em}

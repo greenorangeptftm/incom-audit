@@ -87,16 +87,21 @@ def btn(label, href, kind="pen", arrow=True):
     return '<a class="btn btn-%s" href="%s">%s%s</a>' % (kind, esc(href), esc(label), arr)
 
 
-# ---------- логотип «Двойная запись»: два квадрата, оранжевое сальдо в пересечении ----------
-# Контуры рисуются currentColor, поэтому в светлой шапке знак петрольный, в темной шапке и подвале — белый.
-# Анимация «Обмен» в sverka.css: контуры .dz__o идут по дуге вокруг сальдо .dz__c (CSS, фигура симметрична).
-DZ_MARK = ('<svg class="dz" viewBox="0 0 120 120" aria-hidden="true"><rect class="dz__c" x="44" y="44" width="32" height="32" fill="#E8611A"/>'
-           '<g class="dz__o"><rect class="dz__q" x="14" y="14" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="round"/></g>'
-           '<g class="dz__o"><rect class="dz__q" x="44" y="44" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="round"/></g></svg>')
-FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%230D3C55'/%3E"
-           "%3Crect x='44' y='44' width='32' height='32' fill='%23E8611A'/%3E"
-           "%3Crect x='14' y='14' width='62' height='62' fill='none' stroke='%23fff' stroke-width='9' stroke-linejoin='round'/%3E"
-           "%3Crect x='44' y='44' width='62' height='62' fill='none' stroke='%23fff' stroke-width='9' stroke-linejoin='round'/%3E%3C/svg%3E")
+# ---------- логотип «Сверено · Тает»: кольцо, которое пробивает галочка навылет ----------
+# Цвета через currentColor: в светлой шапке знак петрольный, в темной шапке и подвале белый. Конец кольца у места
+# выхода галочки полупрозрачный (stop-opacity), поэтому на светлом фоне он серо-голубой, на темном растворяется.
+# Анимация «Одним росчерком» в sverka.css (.sv__r/.sv__t): кольцо рисуется от разрыва, затем галочка, потом штрих
+# снимается в том же порядке, непрерывно. ids градиента и маски уникальны на экземпляр: k = h (шапка) | f (подвал).
+def sv_mark(k):
+    return ('<svg class="sv" viewBox="-12 -12 224 224" aria-hidden="true"><defs>'
+            '<linearGradient id="svg-%s" gradientUnits="userSpaceOnUse" x1="30" y1="170" x2="170" y2="30"><stop offset="0" stop-color="currentColor"/><stop offset="1" stop-color="currentColor" stop-opacity=".2"/></linearGradient>'
+            '<mask id="svm-%s"><rect x="-12" y="-12" width="224" height="224" fill="#fff"/><path d="M152.9 81.0L191.2 48.9" fill="none" stroke="#000" stroke-width="32" stroke-linecap="round"/></mask></defs>'
+            '<g mask="url(#svm-%s)"><circle class="sv__r" cx="100" cy="100" r="80" fill="none" stroke="url(#svg-%s)" stroke-width="13" transform="rotate(-25.9 100 100)"/></g>'
+            '<path class="sv__t" d="M36.6 87.0L80.0 142.0L202.7 39.3" fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="round" stroke-linecap="round"/></svg>' % (k, k, k, k))
+
+
+# Фавиконка: тот же знак белым на петрольной плашке, чуть толще, чтобы читался в 16–32 px
+FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -12 224 224'%3E%3Crect x='-12' y='-12' width='224' height='224' rx='48' fill='%230D3C55'/%3E%3Cdefs%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='30' y1='170' x2='170' y2='30'%3E%3Cstop offset='0' stop-color='%23fff'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='.28'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect x='-12' y='-12' width='224' height='224' fill='%23fff'/%3E%3Cpath d='M152.9 81.0L191.2 48.9' fill='none' stroke='%23000' stroke-width='34' stroke-linecap='round'/%3E%3C/mask%3E%3C/defs%3E%3Cg mask='url(%23m)'%3E%3Ccircle cx='100' cy='100' r='80' fill='none' stroke='url(%23g)' stroke-width='15' transform='rotate(-25.9 100 100)'/%3E%3C/g%3E%3Cpath d='M36.6 87.0L80.0 142.0L202.7 39.3' fill='none' stroke='%23fff' stroke-width='16' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E"
 
 
 # ---------- каркас ----------
@@ -117,7 +122,7 @@ def header(page, tone):
         '  </div>\n  <nav class="lg__sheet" id="lg-sheet" hidden aria-label="Меню">\n    %s\n'
         '    <a href="#zayavka">Связаться с нами <span aria-hidden="true">→</span></a>\n'
         '    <a class="lg__sheet-phone" href="%s">%s</a>\n  </nav>\n</header>\n'
-        % (tone, DZ_MARK, "".join(links), PHONE_HREF, PHONE, "\n    ".join(sheet), PHONE_HREF, PHONE))
+        % (tone, sv_mark("h"), "".join(links), PHONE_HREF, PHONE, "\n    ".join(sheet), PHONE_HREF, PHONE))
 
 
 def footer():
@@ -128,7 +133,7 @@ def footer():
         '      %s\n      %s\n      %s\n    </div>\n'
         '    <div class="ftr-docs"><a href="/info/">Обязательное раскрытие информации аудиторскими организациями</a><a href="/policy/">Политика обработки персональных данных</a></div>\n'
         '    <div class="legal"><span>© 2010–2026 %s</span></div>\n  </div>\n</footer>\n'
-        % (DZ_MARK, col("Услуги", FOOTER_SERVICES), col("О компании", FOOTER_COMPANY), col("Информация", FOOTER_INFO), ORG))
+        % (sv_mark("f"), col("Услуги", FOOTER_SERVICES), col("О компании", FOOTER_COMPANY), col("Информация", FOOTER_INFO), ORG))
 
 
 def mbar():
