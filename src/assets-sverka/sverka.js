@@ -8,6 +8,7 @@
   var qa = function (s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); };
   var RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasIO = 'IntersectionObserver' in window;
+  var RW = parseFloat(getComputedStyle(d.body).paddingTop) || 0;   // «разбег» для iOS Safari 26, см. sverka.css (.rw)
   var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
   var arm = function (el) { if (el) { el.classList.remove('is-on'); el.classList.add('is-armed'); } };
   var draw = function (el) { if (!el) return; if (!el.classList.contains('is-armed')) { el.classList.add('is-armed'); void el.getBoundingClientRect(); } el.classList.add('is-on'); };
@@ -50,7 +51,7 @@
       var r = toneSecs[i].getBoundingClientRect();
       if (r.top <= y && r.bottom > y) { if (lg.dataset.tone !== toneSecs[i].dataset.tone) lg.dataset.tone = toneSecs[i].dataset.tone; break; }
     }
-    lg.classList.toggle('is-scrolled', window.scrollY > 40);
+    lg.classList.toggle('is-scrolled', window.scrollY > 40 + RW);
   }
   var burger = lg && q('.lg__burger', lg), sheetNav = q('#lg-sheet');
   function setMenu(o) {
@@ -246,12 +247,12 @@
     tocLinks.forEach(function (a, i) { a.classList.toggle('is-on', i === cur); });
   }
 
-  /* ——— нижняя панель на телефонах: прячется у формы, подвала и пока на экране кнопки первого экрана
-     (иначе «Позвонить / Заявка» дублируют кнопки hero). Состояние храним по каждому элементу, а не счётчиком:
-     при загрузке часть элементов уже на экране, часть нет, и счётчик уходил в минус ——— */
+  /* ——— нижняя панель на телефонах: прячется у формы и подвала. Над первым экраном НЕ прячем: iOS Safari 26
+     красит область под своей нижней панелью цветом ближайшего fixed-элемента, без бара там получается белая полоса.
+     Состояние храним по каждому элементу, а не счётчиком ——— */
   var mbar = q('#mbar');
   if (mbar && hasIO) {
-    var mWatch = qa('#zayavka, .ftr, .hero-cta, .phero-cta');
+    var mWatch = qa('#zayavka, .ftr');
     var mIO = new IntersectionObserver(function (es) {
       es.forEach(function (e) { e.target._mbOn = e.isIntersecting; });
       mbar.classList.toggle('is-hidden', Array.prototype.some.call(mWatch, function (el) { return el._mbOn; }));
@@ -395,12 +396,18 @@
   });
   if (location.hash.length > 1) setTimeout(function () { go(location.hash.slice(1), false); }, 80);
 
-  /* ——— iOS Safari 26: в позиции scrollY = 0 статус-бар и нижняя панель заливаются сплошным цветом, а от 1px и дальше сквозь
-     «стекло» видна сама страница (фото на главной). Держим прокрутку не в нуле: 1px глазом не заметен. Только тач-устройства ——— */
-  if (window.matchMedia('(hover: none) and (pointer: coarse)').matches && location.hash.length < 2) {
-    var nudgeT, nudge = function () { if (window.scrollY === 0 && d.documentElement.scrollHeight > window.innerHeight + 2) window.scrollTo({ top: 1, left: 0, behavior: 'instant' }); };
-    window.addEventListener('load', function () { setTimeout(nudge, 60); });
-    window.addEventListener('pageshow', function () { setTimeout(nudge, 60); });
-    window.addEventListener('scroll', function () { clearTimeout(nudgeT); nudgeT = setTimeout(nudge, 260); }, { passive: true });
+  /* ——— iOS Safari 26: в самой верхней точке (scrollY = 0) область статус-бара заливается сплошным цветом фона страницы,
+     а на прокрученной странице сквозь стекло видно саму страницу. На главной для телефонов body получает верхний
+     отступ RW (sverka.css), и страница при открытии сразу стоит на нем: картинка та же, что без отступа, но Safari считает
+     страницу прокрученной и показывает фото под часами с первого кадра. Если страницу оттянули в самый верх,
+     мягко возвращаем ее на отступ ——— */
+  if (RW > 0 && location.hash.length < 2) {
+    var rwT, toRunway = function (smooth) {
+      if (d.documentElement.scrollHeight > window.innerHeight + RW && window.scrollY < RW) window.scrollTo({ top: RW, left: 0, behavior: (smooth && !RM) ? 'smooth' : 'instant' });
+    };
+    toRunway(false);
+    window.addEventListener('load', function () { toRunway(false); });
+    window.addEventListener('pageshow', function () { toRunway(false); });
+    window.addEventListener('scroll', function () { clearTimeout(rwT); rwT = setTimeout(function () { if (window.scrollY < RW / 2) toRunway(true); }, 400); }, { passive: true });
   }
 })();
