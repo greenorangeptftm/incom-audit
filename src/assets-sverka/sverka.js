@@ -247,12 +247,11 @@
     tocLinks.forEach(function (a, i) { a.classList.toggle('is-on', i === cur); });
   }
 
-  /* ——— нижняя панель на телефонах: прячется у формы и подвала. Над первым экраном НЕ прячем: iOS Safari 26
-     красит область под своей нижней панелью цветом ближайшего fixed-элемента, без бара там получается белая полоса.
-     Состояние храним по каждому элементу, а не счётчиком ——— */
+  /* ——— нижняя панель на телефонах: прячется у формы, подвала и пока на экране кнопки первого экрана
+     (иначе «Позвонить / Заявка» дублируют кнопки hero). Состояние храним по каждому элементу, а не счётчиком ——— */
   var mbar = q('#mbar');
   if (mbar && hasIO) {
-    var mWatch = qa('#zayavka, .ftr');
+    var mWatch = qa('#zayavka, .ftr, .hero-cta, .phero-cta');
     var mIO = new IntersectionObserver(function (es) {
       es.forEach(function (e) { e.target._mbOn = e.isIntersecting; });
       mbar.classList.toggle('is-hidden', Array.prototype.some.call(mWatch, function (el) { return el._mbOn; }));

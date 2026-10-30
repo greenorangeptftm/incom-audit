@@ -21,7 +21,7 @@ html[data-tone="dark"],html[data-tone="dark"] body{background:var(--ink)}
 /* «разбег»: на телефонах главная получает верхний отступ в высоту статус-бара, а sverka.js сразу прокручивает страницу на него;
    так Safari считает страницу прокрученной и показывает фото под часами, а не сплошной цвет. Отступ виден только если
    оттянуть страницу выше верха, и скрипт мягко возвращает ее на место */
-@media (hover:none) and (pointer:coarse){html[data-tone="dark"] body{padding-top:60px}}
+@media (hover:none) and (pointer:coarse){html[data-tone="dark"] body{padding-top:120px}}
 body{margin:0;background:var(--fog);color:var(--ink);font:400 17.5px/1.6 var(--f);-webkit-font-smoothing:antialiased;overflow-x:clip}
 @media (min-width:760px){body{font-size:18px}}
 img{max-width:100%;height:auto;display:block}
@@ -154,7 +154,7 @@ button,input,select{font:inherit;color:inherit}
 /* ───── нижняя панель на телефонах ───── */
 .mbar{display:none}
 @media (max-width:760px){
-  .mbar{position:fixed;z-index:58;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:999px;background:rgba(7,34,49,.72);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);box-shadow:inset 0 1px 1px rgba(255,255,255,.35),0 12px 28px -12px rgba(0,0,0,.55);transition:transform .35s var(--ease),opacity .25s}
+  .mbar{position:fixed;z-index:58;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:999px;background:rgba(7,34,49,.72);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);transition:transform .35s var(--ease),opacity .25s}
   .mbar a{display:grid;place-items:center;min-height:46px;border-radius:999px;color:#fff;text-decoration:none;font:600 15px/1 var(--f)}
   .mbar .mbar-cta{background:var(--pen)}
   .mbar.is-hidden{transform:translateY(calc(100% + 20px));opacity:0;pointer-events:none}
