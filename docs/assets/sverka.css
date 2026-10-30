@@ -20,6 +20,7 @@
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:var(--hh);--edge:var(--fog);background:linear-gradient(var(--night) 50%,var(--edge) 50%) 0 0/100% 100% repeat-y var(--night)}
 html[data-tone="dark"]{--edge:#8E9597}   /* небо у верхнего края фото главной вместе с затемнением .hero-shade, замерено на iPhone */
 html[data-tone="dark"] body{background:var(--edge)}   /* все секции главной красят фон сами; этот цвет Safari берет под часы при scrollY = 0 */
+@media (hover:none) and (pointer:coarse){html{overscroll-behavior-y:none}}   /* на телефонах страницу не оттянуть за край; iOS это свойство на корне не слушает, там то же делает sverka.js (пол прокрутки) */
 /* «разбег» --rw: на телефонах hero главной выше на 120px, и эти 120px заняты продолжением фото (см. .hero::before ниже),
    а sverka.js сразу прокручивает страницу на них. Кадр на экране тот же, что без разбега, но выше окна лежит фото,
    и Safari показывает под часами его, а не сплошной цвет. Разбег виден только если оттянуть страницу выше верха;

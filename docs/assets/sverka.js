@@ -8,7 +8,8 @@
   var qa = function (s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); };
   var RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasIO = 'IntersectionObserver' in window;
-  var RW = parseFloat(getComputedStyle(root).getPropertyValue('--rw')) || 0;   // «разбег» для iOS Safari 26, см. sverka.css (--rw)
+  var readRW = function () { return parseFloat(getComputedStyle(root).getPropertyValue('--rw')) || 0; };
+  var RW = readRW();   // «разбег» для iOS Safari 26, см. sverka.css (--rw); перечитывается при повороте экрана
   var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
   var arm = function (el) { if (el) { el.classList.remove('is-on'); el.classList.add('is-armed'); } };
   var draw = function (el) { if (!el) return; if (!el.classList.contains('is-armed')) { el.classList.add('is-armed'); void el.getBoundingClientRect(); } el.classList.add('is-on'); };
@@ -251,7 +252,7 @@
   var ticking = false;
   function onScroll() { if (ticking) return; ticking = true; requestAnimationFrame(function () { ticking = false; updHeader(); progress(); stepsFill(); updToc(); }); }
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', function () { setHH(); onScroll(); });
+  window.addEventListener('resize', function () { RW = readRW(); setHH(); onScroll(); toFloor(); });
   setHH(); updHeader(); progress(); stepsFill(); updToc();
   if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { setHH(); onScroll(); });
   window.addEventListener('load', onScroll);
@@ -386,13 +387,39 @@
   /* ——— iOS Safari 26: под статус-баром сквозь стекло видно то, что ушло за верхний край окна, а в самой верхней точке
      (scrollY = 0) там ничего нет, и Safari заливает его фоном body. На главной для телефонов hero выше на RW = --rw
      (sverka.css), эти пиксели заняты продолжением фото, и страница при открытии сразу стоит на RW: кадр тот же, что без
-     разбега, но под часами лежит фото. Назад на разбег страницу не возвращаем: если ее оттянули в самый верх, под часами
-     окажется фон body, а он в цвет неба у края фото (--edge), так что скачок не нужен ——— */
-  if (RW > 0 && location.hash.length < 2) {
-    var toRunway = function () {
-      if (d.documentElement.scrollHeight > window.innerHeight + RW && window.scrollY < RW) window.scrollTo({ top: RW, left: 0, behavior: 'instant' });
-    };
-    toRunway();
-    window.addEventListener('load', toRunway);
-  }
+     разбега, но под часами лежит фото. RW — «пол» прокрутки: выше него страница не поднимается. Палец, тянущий страницу
+     вниз от пола (и вверх от самого низа), не двигает ее — на телефоне нет ни резинового оттягивания, ни лишнего неба
+     над фото. Инерция, долетевшая выше пола, тут же останавливается на нем, без плавного отката. На остальных страницах
+     пол = 0: обычный верх, но тоже без оттягивания ——— */
+  var maxY = function () { return Math.max(0, (d.scrollingElement || root).scrollHeight - window.innerHeight); };
+  var floorY = function () { return Math.min(RW, maxY()); };
+  var zoomed = function () { var vv = window.visualViewport; return !!vv && vv.scale > 1.01; };
+  function toFloor() { if (!zoomed() && window.scrollY < floorY()) window.scrollTo({ top: floorY(), left: 0, behavior: 'instant' }); }
+  if (RW > 0 && location.hash.length < 2) { toFloor(); window.addEventListener('load', toFloor); }
+  /* жесты: внутри прокручиваемых блоков, окна заявки, при открытой клавиатуре и при увеличении страницы не вмешиваемся;
+     горизонтальные свайпы (таблицы, «назад» в Safari) не трогаем */
+  var touching = false, tX0 = 0, tY0 = 0, tFree = false;
+  var inScroller = function (el) {
+    for (; el && el !== d.body && el !== root; el = el.parentElement) {
+      if (el.nodeType !== 1) continue;
+      var cs = getComputedStyle(el);
+      if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1) return true;
+    }
+    return false;
+  };
+  d.addEventListener('touchstart', function (e) {
+    touching = true; tX0 = e.touches[0].clientX; tY0 = e.touches[0].clientY;
+    var ae = d.activeElement;
+    tFree = root.classList.contains('has-modal') || !!(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) || inScroller(e.target);
+  }, { passive: true });
+  d.addEventListener('touchmove', function (e) {
+    if (tFree || e.touches.length !== 1 || !e.cancelable || zoomed()) return;
+    var dx = e.touches[0].clientX - tX0, dy = e.touches[0].clientY - tY0;
+    if (Math.abs(dy) <= Math.abs(dx)) return;
+    if ((dy > 0 && window.scrollY <= floorY()) || (dy < 0 && window.scrollY >= maxY() - 1)) e.preventDefault();
+  }, { passive: false });
+  var touchEnd = function (e) { if (e.touches.length) return; touching = false; toFloor(); };
+  d.addEventListener('touchend', touchEnd, { passive: true });
+  d.addEventListener('touchcancel', touchEnd, { passive: true });
+  window.addEventListener('scroll', function () { if (!touching) toFloor(); }, { passive: true });
 })();
