@@ -4,7 +4,7 @@
 PAGE = dict(
     kind="service",
     path="audit/due-diligence/",
-    redirect_from=["konsalting/due-diligence/"],
+    redirect_from=["konsalting/due-diligence/", "auditorskie-uslugi/due-diligence/", "audit-2/due-diligence/"],   # старые адреса сайта incom-consult.ru (WordPress): заглушка с переадресацией
     title="Дью дилидженс: финансовая проверка бизнеса перед сделкой | Инком-Аудит",
     description="Дью дилидженс перед покупкой бизнеса, входом инвестора или крупным контрактом: финансовая, налоговая и юридическая проверка, отчет с оценкой рисков. По всей России",
     h1="Дью дилидженс: проверка компании перед сделкой",

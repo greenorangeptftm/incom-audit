@@ -5,6 +5,7 @@
 Общие данные (меню, подвал, JSON-LD, реквизиты) берём из templates.py, чтобы темы не расходились.
 """
 import re
+import pathlib
 
 import templates as T
 from templates import (esc, slug, ru_date, head_jsonld, PHONE, PHONE_HREF, MAIL, ORG, NAV, EXPECTED_PAGES,  # noqa: F401
@@ -13,8 +14,15 @@ from templates import (esc, slug, ru_date, head_jsonld, PHONE, PHONE_HREF, MAIL,
 PROSE_PHOTO_CLS = "ph prose-photo"
 # Шрифты лежат на сайте (assets/fonts): без обращения к Google Fonts, основной текст подгружается первым
 FONT_HEAD = ('<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/onest-cyrillic.woff2" crossorigin>\n'
-             '<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/onest-latin.woff2" crossorigin>\n'
-             '<link rel="stylesheet" href="/assets/fonts/fonts.css">\n')
+             '<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/onest-latin.woff2" crossorigin>\n')
+# @font-face прямо в <head>: на один блокирующий запрос меньше (файл assets/fonts/fonts.css остается эталоном этих правил)
+_FONT_CSS_PATH = pathlib.Path(__file__).resolve().parent / "assets-sverka" / "fonts" / "fonts.css"
+_FONT_CSS = "\n".join(l for l in _FONT_CSS_PATH.read_text(encoding="utf-8").splitlines() if l.startswith("@font-face"))
+
+
+def font_head(ctx):
+    css = _FONT_CSS.replace("url(", "url(%sassets/fonts/" % ctx["root"])
+    return FONT_HEAD + "<style>" + css + "</style>\n"
 
 # Иконки кнопок: штрих в стиле пометок аудитора
 ICO = {
@@ -58,10 +66,10 @@ def figure(ctx, key, alt, cls="ph", sizes="100vw", caption="", lazy=True, extra=
     if not ph:
         return ""
     p = ctx["photo_prefix"]
-    src = "%s%s.jpg" % (p, key)
+    src = "%s%s.webp" % (p, key)
     srcset = "%s %dw" % (src, ph["w"])
     if ph["small"]:
-        srcset = "%s%s-900.jpg %dw, " % (p, key, ph["sw"]) + srcset
+        srcset = "%s%s-900.webp %dw, " % (p, key, ph["sw"]) + srcset
     load = 'loading="lazy" decoding="async"' if lazy else 'fetchpriority="high" decoding="async"'
     pos = pos or PHOTO_POS.get(key)
     style = ' style="object-position:%s"' % pos if pos else ""
@@ -76,10 +84,10 @@ def preload(ctx, key, sizes):
     if not ph:
         return ""
     p = ctx["photo_prefix"]
-    srcset = "%s%s.jpg %dw" % (p, key, ph["w"])
+    srcset = "%s%s.webp %dw" % (p, key, ph["w"])
     if ph["small"]:
-        srcset = "%s%s-900.jpg %dw, " % (p, key, ph["sw"]) + srcset
-    return '<link rel="preload" as="image" href="%s%s.jpg" imagesrcset="%s" imagesizes="%s" fetchpriority="high">\n' % (p, key, srcset, sizes)
+        srcset = "%s%s-900.webp %dw, " % (p, key, ph["sw"]) + srcset
+    return '<link rel="preload" as="image" href="%s%s.webp" imagesrcset="%s" imagesizes="%s" fetchpriority="high">\n' % (p, key, srcset, sizes)
 
 
 def btn(label, href, kind="pen", arrow=True):
@@ -107,6 +115,7 @@ def sv_mark(k):
 # ---------- каркас ----------
 def header(page, tone):
     path = "/" + page["path"]
+    cta = "/kontakty/#zayavka" if page.get("no_form") else "#zayavka"   # без JS ссылка ведет на бланк, с JS открывает окно
     links, sheet = [], []
     for label, href in NAV:
         cur = path == href or (href != "/" and path.startswith(href))
@@ -115,21 +124,23 @@ def header(page, tone):
         sheet.append('<a href="%s"%s>%s <span aria-hidden="true">→</span></a>' % (href, aria, label))
     return (
         '<header class="lg" data-tone="%s" id="lg">\n  <div class="lg__bar">\n'
-        '    <a class="lg__brand" href="/" aria-label="Инком-Аудит, на главную">%s<span><b>ИНКОМ-АУДИТ</b><small>Аудиторская компания</small></span></a>\n'
+        '    <a class="lg__brand" href="/">%s<span><b>ИНКОМ-АУДИТ</b><small>Аудиторская компания</small></span></a>\n'
         '    <nav class="lg__links" aria-label="Разделы"><span class="lg__lens" aria-hidden="true"></span>%s</nav>\n'
-        '    <a class="lg__phone" href="%s">%s</a>\n    <a class="lg__cta" href="#zayavka">Связаться с нами</a>\n'
+        '    <a class="lg__phone" href="%s">%s</a>\n    <a class="lg__cta" href="%s">Связаться с нами</a>\n'
         '    <button class="lg__burger" type="button" aria-expanded="false" aria-controls="lg-sheet" aria-label="Открыть меню"><i></i><i></i><i></i></button>\n'
         '  </div>\n  <nav class="lg__sheet" id="lg-sheet" hidden aria-label="Меню">\n    %s\n'
-        '    <a href="#zayavka">Связаться с нами <span aria-hidden="true">→</span></a>\n'
+        '    <a href="%s">Связаться с нами <span aria-hidden="true">→</span></a>\n'
         '    <a class="lg__sheet-phone" href="%s">%s</a>\n  </nav>\n</header>\n'
-        % (tone, sv_mark("h"), "".join(links), PHONE_HREF, PHONE, "\n    ".join(sheet), PHONE_HREF, PHONE))
+        % (tone, sv_mark("h"), "".join(links), PHONE_HREF, PHONE, cta, "\n    ".join(sheet), cta, PHONE_HREF, PHONE))
 
 
-def footer():
-    col = lambda title, items: '<div><h4>%s</h4><ul>%s</ul></div>' % (title, "".join('<li><a href="%s">%s</a></li>' % (h, esc(l)) for l, h in items))
+def footer(page):
+    # на страницах без бланка заявки ссылка «Связаться с нами» ведет на бланк в контактах (с JS все равно откроется окно)
+    fix = lambda h: "/kontakty/#zayavka" if (h == "#zayavka" and page.get("no_form")) else h
+    col = lambda title, items: '<div><p class="ftr-h">%s</p><ul>%s</ul></div>' % (title, "".join('<li><a href="%s">%s</a></li>' % (fix(h), esc(l)) for l, h in items))
     return (
         '<footer class="ftr" data-tone="dark" aria-label="Подвал сайта">\n  <div class="wrap">\n    <div class="ftr-grid">\n'
-        '      <div class="ftr-brand">\n        <a class="ftr-logo" href="/" aria-label="Инком-Аудит, на главную">%s<span><b>ИНКОМ-АУДИТ</b><small>Аудиторская компания</small></span></a>\n      </div>\n'
+        '      <div class="ftr-brand">\n        <a class="ftr-logo" href="/">%s<span><b>ИНКОМ-АУДИТ</b><small>Аудиторская компания</small></span></a>\n      </div>\n'
         '      %s\n      %s\n      %s\n    </div>\n'
         '    <div class="ftr-docs"><a href="/info/">Обязательное раскрытие информации аудиторскими организациями</a><a href="/policy/">Политика обработки персональных данных</a></div>\n'
         '    <div class="legal"><span>© 2010–2026 %s</span></div>\n  </div>\n</footer>\n'
@@ -146,7 +157,7 @@ def base(ctx, page, body, tone="light", pre=""):
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n%s'
         '<title>%s</title>\n<meta name="description" content="%s">\n<link rel="canonical" href="%s">\n'
         '<meta property="og:type" content="%s">\n<meta property="og:title" content="%s">\n<meta property="og:description" content="%s">\n'
-        '<meta property="og:url" content="%s">\n<meta property="og:image" content="%s">\n<meta property="og:locale" content="ru_RU">\n<meta property="og:site_name" content="Инком-Аудит">\n'
+        '<meta property="og:url" content="%s">\n<meta property="og:image" content="%s">\n<meta property="og:locale" content="ru_RU">\n<meta property="og:site_name" content="Инком-Аудит">\n<meta name="twitter:card" content="summary_large_image">\n'
         '<meta name="theme-color" content="%s">\n'
         # иконки: ico для старых браузеров и Яндекса, svg для современных, png 120 для Яндекса, apple-touch для iOS
         '<link rel="icon" href="/favicon.ico" sizes="32x32">\n<link rel="icon" type="image/svg+xml" href="/favicon.svg">\n'
@@ -158,8 +169,8 @@ def base(ctx, page, body, tone="light", pre=""):
         '<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s'
         '<script src="/assets/sverka.js?v=%s" defer></script>\n</body>\n</html>\n'
         % (tone, robots, esc(page["title"]), esc(page["description"]), url, "article" if page["kind"] == "article" else "website",
-           esc(page.get("og_title") or page["h1"]), esc(page["description"]), url, og_img, "#0D3C55" if tone == "dark" else "#EEF2F4", FONT_HEAD, ctx.get("asset_v", "1"), pre,
-           head_jsonld(ctx, page), header(page, tone), body, footer(), modal(page), ctx.get("asset_v", "1")))
+           esc(page.get("og_title") or page["h1"]), esc(page["description"]), url, og_img, "#0D3C55" if tone == "dark" else "#EEF2F4", font_head(ctx), ctx.get("asset_v", "1"), pre,
+           head_jsonld(ctx, page), header(page, tone), body, footer(page), modal(page), ctx.get("asset_v", "1")))
 
 
 # ---------- общие блоки ----------
@@ -187,7 +198,7 @@ def lead_form(page, p="f", cls="form-sheet", heading=True):
         '      <div class="fld"><label for="%s-email">E-mail*</label><input id="%s-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>\n'
         '      <div class="fld"><label for="%s-company">Наименование компании*</label><input id="%s-company" name="company" autocomplete="organization" required></div>\n'
         '      <div class="fld"><label for="%s-msg">Сообщение*</label><textarea id="%s-msg" name="message" rows="4" maxlength="500" required></textarea><span class="counter" data-count aria-live="polite">0 / 500</span></div>\n'
-        '      <div class="fld"><label for="%s-task">Услуга*</label><select id="%s-task" name="task" required>%s</select></div>\n'
+        '      <div class="fld"><label for="%s-task">Услуга*</label><select id="%s-task" name="task">%s</select></div>\n'
         '      <button class="btn btn-pen" type="submit">Отправить заявку <span class="arr" aria-hidden="true">→</span></button>\n'
         '      <label class="consent" for="%s-consent"><input class="cbx" id="%s-consent" name="consent" type="checkbox" value="yes" required>'
         '<span>Направляя форму обратной связи и предоставляя персональные данные, я выражаю согласие на обработку моих персональных данных '
@@ -269,7 +280,7 @@ def calculator(sec=None):
         '      <a class="btn btn-pen" href="#zayavka">Получить точный расчёт <span class="arr" aria-hidden="true">→</span></a></div>\n  </form>\n</div>\n' % (h2, intro))
 
 
-def article_cards(ctx, limit=3, exclude=None):
+def article_cards(ctx, limit=3, exclude=None, level=3):
     cards = []
     for a in ctx["articles"]:
         if exclude and a["path"] == exclude:
@@ -277,8 +288,8 @@ def article_cards(ctx, limit=3, exclude=None):
         if len(cards) >= limit:
             break
         tags = "".join('<span class="tag">%s</span>' % esc(t) for t in (a.get("tags") or [])[:3])
-        cards.append('<a class="post" href="/%s"><p class="post-date">%s</p><h3>%s</h3><p>%s</p><div class="post-tags">%s</div><span class="link">Читать <span class="arr" aria-hidden="true">→</span></span></a>'
-                     % (a["path"], ru_date(a.get("date", "")), esc(a["h1"]), esc(a.get("excerpt", "")), tags))
+        cards.append('<a class="post" href="/%s"><p class="post-date">%s</p><h%d>%s</h%d><p>%s</p><div class="post-tags">%s</div><span class="link">Читать <span class="arr" aria-hidden="true">→</span></span></a>'
+                     % (a["path"], ru_date(a.get("date", "")), level, esc(a["h1"]), level, esc(a.get("excerpt", "")), tags))
     return cards
 
 
@@ -323,7 +334,7 @@ def render_section(ctx, s, i):
         body = strip(s["items"], cls="strip strip-doc")
     elif t == "steps":
         li = "".join('<li><span class="steps__n" aria-hidden="true">%d</span><h3>%s</h3><p>%s</p></li>' % (n, esc(a), b) for n, (a, b) in enumerate(s["items"], 1))
-        body = '<ol class="steps" data-steps><span class="steps__line" aria-hidden="true"><span class="steps__fill"></span></span>%s</ol>' % li
+        body = '<ol class="steps" data-steps>%s</ol>' % li
     elif t == "cards":
         n = 2 if len(s["items"]) in (2, 4) else 3
         cs = "".join('<a class="card" href="%s"><h3>%s</h3><p>%s</p><span class="link">Подробнее <span class="arr" aria-hidden="true">→</span></span></a>' % (esc(h), esc(a), esc(b)) for a, b, h in s["items"])
@@ -462,7 +473,7 @@ def render_article(ctx, page):
 
 
 def render_blog(ctx, page):
-    cards = article_cards(ctx, 100)
+    cards = article_cards(ctx, 100, level=2)
     empty = '<p class="lead">Статьи появятся здесь. Пока посмотрите разделы услуг.</p>' if not cards else ""
     body, toc = doc_sections(ctx, page)
     grid = '<section class="sec-band" data-tone="light" aria-label="Статьи"><div class="wrap"><div class="posts">%s</div>%s</div></section>\n' % ("".join(cards), empty)
@@ -537,7 +548,7 @@ def industries(ctx, items):
     return (
         '<section class="sec-band ind cv" id="industries" data-tone="dark" aria-labelledby="ind-h">\n  <div class="wrap">\n'
         '    <div class="sec-head sec-head--one" data-rise><h2 class="h2" id="ind-h">Кто наши основные клиенты</h2></div>\n'
-        '    <div class="ind-scroll"><div class="ind-grid">%s</div></div>\n    <p class="ind-hint" aria-hidden="true">Листайте карточки вбок →</p>\n  </div>\n</section>\n' % "".join(cards))
+        '    <div class="ind-scroll" tabindex="0" role="region" aria-label="Отрасли"><div class="ind-grid">%s</div></div>\n    <p class="ind-hint" aria-hidden="true">Листайте карточки вбок →</p>\n  </div>\n</section>\n' % "".join(cards))
 
 
 COLLAGE_KEYS = ["ind-construction-2", "ind-trade", "ind-production", "ind-agro", "ind-leasing", "ind-it", "ind-rent"]

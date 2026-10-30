@@ -52,6 +52,21 @@ def jpeg_size(path):
     raise ValueError("не удалось прочитать размер %s" % path)
 
 
+def ensure_webp(jpg):
+    """WebP рядом с исходным jpg (делается один раз, пересобирается, если jpg новее). Нужен Pillow."""
+    webp = jpg.with_suffix(".webp")
+    if webp.exists() and webp.stat().st_mtime >= jpg.stat().st_mtime:
+        return webp
+    try:
+        from PIL import Image, ImageOps
+    except ImportError:
+        raise SystemExit("Для WebP нужен Pillow: python3 -m pip install pillow")
+    with Image.open(jpg) as im:
+        im = ImageOps.exif_transpose(im).convert("RGB")
+        im.save(webp, "WEBP", quality=82, method=6)
+    return webp
+
+
 def load_photos(photos_dir):
     photos = {}
     for p in sorted(photos_dir.glob("*.jpg")):
@@ -146,7 +161,8 @@ def rel_root(path):
 
 def rewrite_links(html, root):
     # href="/audit/" → href="../audit/" по глубине страницы; протокольные "//" не трогаем
-    return re.sub(r'((?:href|src|action|poster|imagesrcset)=")/(?!/)', lambda m: m.group(1) + root, html)
+    # ссылка ровно на корень сайта с главной страницы: «./», а не пустой href
+    return re.sub(r'((?:href|src|action|poster|imagesrcset)=")/(?!/)([^"]*)"', lambda m: m.group(1) + (root or ("./" if m.group(2) == "" else "")) + m.group(2) + '"', html)
 
 
 def expand_photos(html, ctx, templates):
@@ -312,7 +328,7 @@ def build(theme, out, site_url, photos_dir, noindex):
             continue
         if f.is_dir():
             shutil.copytree(f, out / "assets" / f.name, dirs_exist_ok=True)
-        elif f.is_file():
+        elif f.is_file() and f.suffix != ".html":   # черновики и эскизы в assets не публикуем
             shutil.copy2(f, out / "assets" / f.name)
     root_src = assets_src / "_root"          # фавиконки и прочее, что должно лежать в корне сайта
     if root_src.is_dir():
@@ -343,7 +359,7 @@ def build(theme, out, site_url, photos_dir, noindex):
         html = rewrite_links(html, root)
         if theme == "sverka":
             html = finalize_page(html)
-        used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.jpg', html))
+        used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.(?:jpg|webp)', html))
         target = out / page["path"] / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(html, encoding="utf-8")
@@ -369,25 +385,32 @@ def build(theme, out, site_url, photos_dir, noindex):
 
     # 404 (если тема умеет)
     if hasattr(templates, "render_404"):
-        ctx = dict(site_url=site_url, assets_url=assets_url, asset_v=asset_v, noindex=True, root="", theme=theme,
-                   photo_prefix=photo_rel, photos=photos, pages=pages, by_path=by_path, articles=articles, today=today, defs=defs_svg)
-        html = rewrite_links(templates.render_404(ctx), "")
+        # 404 отдается по любому несуществующему адресу, в том числе вложенному, поэтому все ссылки абсолютные от корня сайта
+        from urllib.parse import urlparse
+        root404 = urlparse(site_url).path.rstrip("/") + "/"
+        ctx = dict(site_url=site_url, assets_url=assets_url, asset_v=asset_v, noindex=True, root=root404, theme=theme,
+                   photo_prefix=root404 + photo_rel, photos=photos, pages=pages, by_path=by_path, articles=articles, today=today, defs=defs_svg)
+        html = rewrite_links(templates.render_404(ctx), root404)
         if theme == "sverka":
             html = finalize_page(html)
-        used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.jpg', html))
+        used_photos.update(re.findall(r'photos/([A-Za-z0-9_-]+?)(?:-900)?\.(?:jpg|webp)', html))
         (out / "404.html").write_text(html, encoding="utf-8")
 
     # фотографии и логотипы отдельного сайта
     if standalone:
         pdir = out / "assets" / "photos"
         pdir.mkdir(parents=True, exist_ok=True)
+        # страницы ссылаются на .webp (оба размера); .jpg полного размера остается для og:image и как исходник
         for name in sorted(used_photos):
-            for fn in (name + ".jpg", name + "-900.jpg"):
-                src = photos_dir / fn
-                if src.exists():
-                    shutil.copy2(src, pdir / fn)
-                elif fn.endswith(".jpg") and not fn.endswith("-900.jpg"):
-                    warns.append("нет файла фотографии %s" % fn)
+            src = photos_dir / (name + ".jpg")
+            if not src.exists():
+                warns.append("нет файла фотографии %s.jpg" % name)
+                continue
+            shutil.copy2(src, pdir / src.name)
+            for stem in (name, name + "-900"):
+                jpg = photos_dir / (stem + ".jpg")
+                if jpg.exists():
+                    shutil.copy2(ensure_webp(jpg), pdir / (stem + ".webp"))
         logo_src = (SRC / "logo") if (SRC / "logo").is_dir() else photos_dir.parent / "logo"
         if logo_src.exists():
             ldir = out / "assets" / "logo"
@@ -411,7 +434,8 @@ def build(theme, out, site_url, photos_dir, noindex):
                   "# и собрать сайт с флагом --index (убирает <meta name=\"robots\" content=\"noindex\">).\n"
                   "User-agent: *\nDisallow: /\n\nSitemap: %s/sitemap.xml\n" % site_url)
     else:
-        robots = "User-agent: *\nAllow: /\nDisallow: /assets/\n\nSitemap: %s/sitemap.xml\n" % site_url
+        # картинки, CSS и JS должны быть доступны роботам: Google и Яндекс рендерят страницы и индексируют фото
+        robots = "User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n" % site_url
     (out / "robots.txt").write_text(robots, encoding="utf-8")
     (out / ".nojekyll").write_text("", encoding="utf-8")
 

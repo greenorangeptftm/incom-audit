@@ -4,6 +4,7 @@
 PAGE = dict(
     kind="service",
     path="audit/nalogovyj/",
+    redirect_from=["auditorskie-uslugi/nalogovyj-audit/", "audit-2/nalogovyj-audit/"],   # старые адреса сайта incom-consult.ru (WordPress): заглушка с переадресацией
     title="Налоговый аудит: проверка налогов до прихода ФНС | Инком-Аудит",
     description="Налоговый аудит: независимая проверка НДС, налога на прибыль, зарплатных налогов и контрагентов до проверки ФНС. Отчёт о рисках и рекомендации. По всей России.",
     h1="Налоговый аудит",

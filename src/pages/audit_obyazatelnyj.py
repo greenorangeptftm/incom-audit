@@ -4,6 +4,7 @@
 PAGE = dict(
     kind="service",
     path="audit/obyazatelnyj/",
+    redirect_from=["auditorskie-uslugi/objazatelnyj-audit-buhgalterskoi-otchetnosti/", "audit-2/objazatelnyj-audit/"],   # старые адреса сайта incom-consult.ru (WordPress): заглушка с переадресацией
     title="Обязательный аудит: кому нужен, сроки, стоимость | Инком-Аудит",
     description="Услуги обязательного аудита по 307-ФЗ: критерии 800 и 400 млн ₽, сроки, документы, этапы. По всей России. Проверьте за минуту, нужен ли вам аудит.",
     h1="Обязательный аудит бухгалтерской отчётности",

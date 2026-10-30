@@ -6,6 +6,7 @@
 PAGE = dict(
     kind="service",
     path="msfo/",
+    redirect_from=["ifrs/", "auditorskie-uslugi/audit-msfo-otchetnosti/", "audit-2/audit-msfo-otchetnosti/", "ifrs/services-consolidation/"],   # старые адреса сайта incom-consult.ru (WordPress): заглушка с переадресацией
     title="Отчетность по МСФО: трансформация и консолидация | Инком-Аудит",
     description="Подготовка отчетности по МСФО для банка, инвестора или иностранного собственника: трансформация из РСБУ, консолидация отчетности группы. Работаем по всей России",
     h1="Подготовка финансовой отчетности по МСФО",

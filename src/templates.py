@@ -153,7 +153,7 @@ def jsonld(obj):
 
 def org_obj(ctx):
     return {"@type": "Organization", "name": ORG, "alternateName": "Инком-Аудит", "url": ctx["site_url"] + "/",
-            "logo": ctx["assets_url"] + "logo/incom-mark.svg", "telephone": PHONE, "email": MAIL,
+            "logo": ctx["site_url"] + "/apple-touch-icon.png", "telephone": PHONE, "email": MAIL,
             "address": {"@type": "PostalAddress", "streetAddress": "ул. Твардовского, д. 2, корп. 5", "postalCode": "123458", "addressLocality": "Москва", "addressCountry": "RU"}}
 
 

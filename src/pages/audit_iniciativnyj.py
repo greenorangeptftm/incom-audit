@@ -4,6 +4,7 @@
 PAGE = dict(
     kind="service",
     path="audit/iniciativnyj/",
+    redirect_from=["auditorskie-uslugi/iniciativnyj-audit/", "audit-2/iniciativnyj-audit/", "auditorskie-uslugi/express-audit/", "audit-2/express-audit/"],   # старые адреса сайта incom-consult.ru (WordPress): заглушка с переадресацией
     title="Инициативный аудит и экспресс-аудит для собственника | Инком-Аудит",
     description="Инициативный аудит по решению собственника: полная проверка отчетности или экспресс-аудит ключевых участков учета. Результат остается у заказчика. По всей России",
     h1="Инициативный аудит: проверка по вашему решению",

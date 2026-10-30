@@ -394,7 +394,7 @@
   var maxY = function () { return Math.max(0, (d.scrollingElement || root).scrollHeight - window.innerHeight); };
   var floorY = function () { return Math.min(RW, maxY()); };
   var zoomed = function () { var vv = window.visualViewport; return !!vv && vv.scale > 1.01; };
-  function toFloor() { if (!zoomed() && window.scrollY < floorY()) window.scrollTo({ top: floorY(), left: 0, behavior: 'instant' }); }
+  function toFloor() { if (RW > 0 && window.scrollY < RW && !zoomed()) { var f = floorY(); if (window.scrollY < f) window.scrollTo({ top: f, left: 0, behavior: 'instant' }); } }
   if (RW > 0 && location.hash.length < 2) { toFloor(); window.addEventListener('load', toFloor); }
   /* жесты: внутри прокручиваемых блоков, окна заявки, при открытой клавиатуре и при увеличении страницы не вмешиваемся;
      горизонтальные свайпы (таблицы, «назад» в Safari) не трогаем */

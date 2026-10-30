@@ -3,7 +3,7 @@
    Анимации только transform / opacity / stroke-dashoffset; размытие стекла только в шапке и нижней панели. */
 :root{
   --ink:#0D3C55;--ink-2:#2E5468;--teal:#024756;--pen:#E8611A;--pen-press:#D8560F;--pen-text:#BE5000;--pen-wash:#FCEBDD;
-  --fog:#EEF2F4;--sheet:#FFFFFF;--muted:#5B7482;--rule:#CBD7DD;--rule-soft:#E2E9EC;--night:#082636;
+  --fog:#EEF2F4;--sheet:#FFFFFF;--muted:#52697A;--rule:#CBD7DD;--rule-soft:#E2E9EC;--night:#082636;
   --on-dark:#FFFFFF;--on-dark-2:rgba(255,255,255,.78);--line-dark:rgba(255,255,255,.16);
   --f:"Onest","Segoe UI",Roboto,Arial,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;--f-hand:"Caveat","Segoe Print","Comic Sans MS",cursive;
   --maxw:1200px;--gut-l:max(16px,env(safe-area-inset-left,0px));--gut-r:max(16px,env(safe-area-inset-right,0px));
@@ -207,7 +207,7 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
    а над ней, в самом разбеге, лежат зеркально отраженные верхние ряды того же фото: небо продолжается вверх без шва (2px захода под фото прячут стык) */
 @media (hover:none) and (pointer:coarse) and (max-width:640px) and (orientation:portrait){
   html[data-tone="dark"] .hero-img{top:var(--rw);height:calc(72% - .72*var(--rw))}
-  html[data-tone="dark"] .hero::before{content:"";position:absolute;z-index:-2;left:50vw;top:calc(var(--rw) - (72% - .72*var(--rw)));height:calc(72% - .72*var(--rw) + 2px);aspect-ratio:900/599;transform:translateX(-67.5%) scaleY(-1);background:url(photos/moscow-city-sunset-900.jpg) 0 0/100% auto no-repeat}
+  html[data-tone="dark"] .hero::before{content:"";position:absolute;z-index:-2;left:50vw;top:calc(var(--rw) - (72% - .72*var(--rw)));height:calc(72% - .72*var(--rw) + 2px);aspect-ratio:900/599;transform:translateX(-67.5%) scaleY(-1);background:url(photos/moscow-city-sunset-900.webp) 0 0/100% auto no-repeat}
 }
 
 /* ───── каталог услуг ───── */
@@ -397,10 +397,10 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 .sec-band--sheet .post,.sec-band--sheet .card,.sec-band--sheet .sitc{background:var(--fog)}
 .post:hover{border-color:var(--ink);box-shadow:0 20px 40px -28px rgba(13,60,85,.5);transform:translateY(-2px)}
 .post-date{font:500 12px/1.4 var(--f-mono);letter-spacing:.04em;color:var(--muted)}
-.post h3{font:600 1.1rem/1.3 var(--f);letter-spacing:-.015em}
+.post :is(h2,h3){margin:0;font:600 1.1rem/1.3 var(--f);letter-spacing:-.015em}
 .post p{font-size:15.5px;line-height:1.5;color:var(--ink-2);flex:1}
 .post-tags{display:flex;flex-wrap:wrap;gap:6px}
-.tag{display:inline-block;padding:4px 9px;border-radius:999px;background:var(--pen-wash);font:600 12px/1.2 var(--f);color:var(--pen-text)}
+.tag{display:inline-block;padding:4px 9px;border-radius:999px;background:var(--pen-wash);font:600 12px/1.2 var(--f);color:#B24A00}
 @media (max-width:1000px){.posts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){.posts,.posts-doc{grid-template-columns:1fr}}
 
@@ -469,7 +469,7 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 .ftr-logo .sv{width:56px;height:56px;flex:none}
 .ftr-logo b{display:block;font:700 18px/1 var(--f);letter-spacing:.04em}
 .ftr-logo small{display:block;font:500 12.5px/1.2 var(--f);letter-spacing:.02em;opacity:.75;margin-top:5px}
-.ftr h4{margin-bottom:14px;font:600 14px/1.3 var(--f);color:#fff;letter-spacing:.02em}
+.ftr .ftr-h{margin:0 0 14px;font:600 14px/1.3 var(--f);color:#fff;letter-spacing:.02em}
 .ftr ul{display:grid;gap:10px;font-size:15.5px}
 .ftr ul a{text-decoration:none}
 .ftr ul a:hover{color:#fff;text-decoration:underline;text-underline-offset:3px}
@@ -575,8 +575,9 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
   .tbl td:first-child{font-size:16.5px}.tbl td:first-child::before{display:none}
 }
 .steps{position:relative;list-style:none;margin:0;padding:0 0 0 60px;display:grid;gap:22px}
-.steps__line{position:absolute;left:21px;top:8px;bottom:8px;width:2px;background:var(--rule);border-radius:2px}
-.steps__fill{position:absolute;inset:0;background:var(--pen);border-radius:2px;transform-origin:center top;transform:scaleY(var(--p,0))}
+.steps::before,.steps::after{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:2px;border-radius:2px}
+.steps::before{background:var(--rule)}
+.steps::after{background:var(--pen);transform-origin:center top;transform:scaleY(var(--p,0))}
 .steps li{position:relative;display:grid;gap:6px;min-width:0}
 .steps__n{position:absolute;left:-60px;top:-2px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--sheet);border:2px solid var(--rule);font:600 15px/1 var(--f);color:var(--pen-text);transition:border-color .3s,background-color .3s,color .3s}
 .steps li.is-done .steps__n{background:var(--pen);border-color:var(--pen);color:#fff}
@@ -640,7 +641,7 @@ figure.ph figcaption{position:absolute;left:12px;bottom:10px;padding:5px 10px;bo
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important}
-  .mk.is-armed{stroke-dashoffset:0}.hand.is-armed{clip-path:none}.fill{transform:none}.steps__fill{transform:none}
+  .mk.is-armed{stroke-dashoffset:0}.hand.is-armed{clip-path:none}.fill{transform:none}.steps::after{transform:none}
 }
 
 /* ───── правки клиента: каталог, коллаж, преимущества, форма ───── */
