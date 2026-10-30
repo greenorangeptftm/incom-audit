@@ -158,7 +158,10 @@ def base(ctx, page, body, tone="light", pre=""):
         '%s<link rel="stylesheet" href="/assets/sverka.css?v=%s">\n%s%s'
         '<!-- Яндекс.Вебмастер: <meta name="yandex-verification" content="…"> -->\n'
         '<!-- Яндекс.Метрика: вставить код счётчика перед </head> -->\n'
-        '</head>\n<body>\n<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s%s'
+        # .tint: две полоски у краев экрана в цвет страницы. iOS Safari 26 красит статус-бар и нижнюю панель цветом
+        # fixed-элемента у самого края (meta theme-color не читает), а наша шапка плавает с отступом. См. sverka.css
+        '</head>\n<body>\n<i class="tint tint-t" aria-hidden="true"></i><i class="tint tint-b" aria-hidden="true"></i>\n'
+        '<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s%s'
         '<script src="/assets/sverka.js?v=%s" defer></script>\n</body>\n</html>\n'
         % (tone, robots, esc(page["title"]), esc(page["description"]), url, "article" if page["kind"] == "article" else "website",
            esc(page.get("og_title") or page["h1"]), esc(page["description"]), url, og_img, "#0D3C55" if tone == "dark" else "#EEF2F4", FONT_HEAD, ctx.get("asset_v", "1"), pre,
