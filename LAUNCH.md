@@ -44,7 +44,7 @@ python3 src/build.py --theme sverka --out docs --site-url https://incom-consult.
 Каждой заявке присваивается короткий номер, он есть и в Telegram, и в теме письма.
 
 `config.local.php` (значения на сервере, в git их нет):
-- `telegram_token` — токен бота от @BotFather.
+- `telegram_token` — токен бота @income_consult_bot («Инком-Аудит») от @BotFather; бот уже добавлен в группу заявок.
 - `telegram_chat_id` = `-1004342603934` (группа для заявок, передана 30.10.2026). Бот должен быть добавлен в эту группу.
   Если чат поменяется: отправить боту в группе `/id` (после установки webhook) или `python3 server/tools/tg_chats.py` (до нее).
 - `telegram_webhook_secret` — секрет для кнопок (см. ниже).
