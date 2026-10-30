@@ -8,7 +8,7 @@
   var qa = function (s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); };
   var RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasIO = 'IntersectionObserver' in window;
-  var RW = parseFloat(getComputedStyle(d.body).paddingTop) || 0;   // «разбег» для iOS Safari 26, см. sverka.css (.rw)
+  var RW = parseFloat(getComputedStyle(root).getPropertyValue('--rw')) || 0;   // «разбег» для iOS Safari 26, см. sverka.css (--rw)
   var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
   var arm = function (el) { if (el) { el.classList.remove('is-on'); el.classList.add('is-armed'); } };
   var draw = function (el) { if (!el) return; if (!el.classList.contains('is-armed')) { el.classList.add('is-armed'); void el.getBoundingClientRect(); } el.classList.add('is-on'); };
@@ -247,18 +247,6 @@
     tocLinks.forEach(function (a, i) { a.classList.toggle('is-on', i === cur); });
   }
 
-  /* ——— нижняя панель на телефонах: прячется у формы, подвала и пока на экране кнопки первого экрана
-     (иначе «Позвонить / Заявка» дублируют кнопки hero). Состояние храним по каждому элементу, а не счётчиком ——— */
-  var mbar = q('#mbar');
-  if (mbar && hasIO) {
-    var mWatch = qa('#zayavka, .ftr, .hero-cta, .phero-cta');
-    var mIO = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { e.target._mbOn = e.isIntersecting; });
-      mbar.classList.toggle('is-hidden', Array.prototype.some.call(mWatch, function (el) { return el._mbOn; }));
-    }, { threshold: 0.05 });
-    Array.prototype.forEach.call(mWatch, function (el) { mIO.observe(el); });
-  }
-
   /* ——— один цикл прокрутки на все наблюдатели ——— */
   var ticking = false;
   function onScroll() { if (ticking) return; ticking = true; requestAnimationFrame(function () { ticking = false; updHeader(); progress(); stepsFill(); updToc(); }); }
@@ -395,11 +383,10 @@
   });
   if (location.hash.length > 1) setTimeout(function () { go(location.hash.slice(1), false); }, 80);
 
-  /* ——— iOS Safari 26: в самой верхней точке (scrollY = 0) область статус-бара заливается сплошным цветом фона страницы,
-     а на прокрученной странице сквозь стекло видно саму страницу. На главной для телефонов body получает верхний
-     отступ RW (sverka.css), и страница при открытии сразу стоит на нем: картинка та же, что без отступа, но Safari считает
-     страницу прокрученной и показывает фото под часами с первого кадра. Если страницу оттянули в самый верх,
-     мягко возвращаем ее на отступ ——— */
+  /* ——— iOS Safari 26: под статус-баром сквозь стекло видно то, что ушло за верхний край окна, а в самой верхней точке
+     (scrollY = 0) там ничего нет, и Safari заливает его сплошным цветом фона. На главной для телефонов hero выше на
+     RW = --rw (sverka.css), эти пиксели заняты продолжением фото, и страница при открытии сразу стоит на RW: кадр тот же,
+     что без разбега, но под часами лежит фото. Если страницу оттянули в самый верх, мягко возвращаем ее на разбег ——— */
   if (RW > 0 && location.hash.length < 2) {
     var rwT, toRunway = function (smooth) {
       if (d.documentElement.scrollHeight > window.innerHeight + RW && window.scrollY < RW) window.scrollTo({ top: RW, left: 0, behavior: (smooth && !RM) ? 'smooth' : 'instant' });

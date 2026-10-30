@@ -136,10 +136,6 @@ def footer():
         % (sv_mark("f"), col("Услуги", FOOTER_SERVICES), col("О компании", FOOTER_COMPANY), col("Информация", FOOTER_INFO), ORG))
 
 
-def mbar():
-    return ('<nav class="mbar" id="mbar" aria-label="Быстрые действия"><a href="%s">Позвонить</a><a class="mbar-cta" href="#zayavka">Заявка</a></nav>\n' % PHONE_HREF)
-
-
 def base(ctx, page, body, tone="light", pre=""):
     url = ctx["site_url"] + "/" + page["path"]
     og_img = T.photo_url(ctx, page.get("photo") or "moscow-city-sunset")
@@ -159,11 +155,11 @@ def base(ctx, page, body, tone="light", pre=""):
         '<!-- Яндекс.Вебмастер: <meta name="yandex-verification" content="…"> -->\n'
         '<!-- Яндекс.Метрика: вставить код счётчика перед </head> -->\n'
         '</head>\n<body>\n'
-        '<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s%s'
+        '<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s'
         '<script src="/assets/sverka.js?v=%s" defer></script>\n</body>\n</html>\n'
         % (tone, robots, esc(page["title"]), esc(page["description"]), url, "article" if page["kind"] == "article" else "website",
            esc(page.get("og_title") or page["h1"]), esc(page["description"]), url, og_img, "#0D3C55" if tone == "dark" else "#EEF2F4", FONT_HEAD, ctx.get("asset_v", "1"), pre,
-           head_jsonld(ctx, page), header(page, tone), body, footer(), mbar(), modal(page), ctx.get("asset_v", "1")))
+           head_jsonld(ctx, page), header(page, tone), body, footer(), modal(page), ctx.get("asset_v", "1")))
 
 
 # ---------- общие блоки ----------
