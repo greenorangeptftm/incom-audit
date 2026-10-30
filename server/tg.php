@@ -40,7 +40,7 @@ if (isset($u['callback_query'])) {
     $res = tg_api($token, 'editMessageText', [
         'chat_id' => $chatId,
         'message_id' => $msg['message_id'],
-        'text' => lead_text($state, $who, $when, $parts['id'], $parts['body'], $parts['meta']),
+        'text' => lead_text($state, $who, $when, $parts['id'], $parts['body']),
         'parse_mode' => 'HTML',
         'disable_web_page_preview' => 'true',
         'reply_markup' => lead_keyboard($state),

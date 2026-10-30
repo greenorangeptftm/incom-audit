@@ -53,9 +53,9 @@ function lead_body_html(string $body): string
     return implode("\n", $out);
 }
 
-function lead_text(string $state, string $who, string $when, string $id, string $body, string $meta): string
+function lead_text(string $state, string $who, string $when, string $id, string $body): string
 {
-    return lead_header($state, $who, $when, $id) . "\n\n" . lead_body_html($body) . "\n\n<i>" . h($meta) . '</i>';
+    return lead_header($state, $who, $when, $id) . "\n\n" . lead_body_html($body);
 }
 
 function lead_keyboard(string $state): string
@@ -66,7 +66,7 @@ function lead_keyboard(string $state): string
     return (string) json_encode(['inline_keyboard' => [$row]], JSON_UNESCAPED_UNICODE);
 }
 
-/* Разбор текста сообщения из Telegram (без разметки): заголовок, тело, подпись. */
+/* Разбор текста сообщения из Telegram (без разметки): заголовок и тело заявки. */
 function lead_parse(string $plain): array
 {
     $lines = explode("\n", str_replace("\r", '', $plain));
@@ -78,11 +78,7 @@ function lead_parse(string $plain): array
     while ($lines && trim(end($lines)) === '') {
         array_pop($lines);
     }
-    $meta = $lines ? array_pop($lines) : '';
-    while ($lines && trim(end($lines)) === '') {
-        array_pop($lines);
-    }
-    return ['id' => $id, 'body' => implode("\n", $lines), 'meta' => $meta];
+    return ['id' => $id, 'body' => implode("\n", $lines)];
 }
 
 function tg_person(array $from): string

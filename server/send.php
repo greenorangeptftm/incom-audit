@@ -84,6 +84,7 @@ $body = implode("\n", [
     'Услуга: ' . ($task !== '' ? $task : 'не указана'),
     'Сообщение: ' . $message,
 ]);
+/* техническая отметка: только в письмо и журнал, в Telegram не показывается */
 $meta = 'Страница: ' . ($page !== '' ? $page : 'не передана') . ($source !== '' ? ' (' . $source . ')' : '') . ' · ' . $when
     . ' · согласие на обработку персональных данных получено';
 $text = 'Новая заявка с сайта №' . $leadId . "\n" . $body . "\n\n" . $meta;
@@ -97,7 +98,7 @@ if ($cfg['dry_run']) {
 if ($cfg['telegram_token'] !== '' && $cfg['telegram_chat_id'] !== '') {
     $okTg = tg_api($cfg['telegram_token'], 'sendMessage', [
         'chat_id' => (string) $cfg['telegram_chat_id'],
-        'text' => lead_text('new', '', '', $leadId, $body, $meta),
+        'text' => lead_text('new', '', '', $leadId, $body),
         'parse_mode' => 'HTML',
         'disable_web_page_preview' => 'true',
         'reply_markup' => lead_keyboard('new'),
