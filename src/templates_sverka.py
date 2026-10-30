@@ -100,8 +100,8 @@ def sv_mark(k):
             '<path class="sv__t" d="M36.6 87.0L80.0 142.0L202.7 39.3" fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="round" stroke-linecap="round"/></svg>' % (k, k, k, k))
 
 
-# Фавиконка: тот же знак белым на петрольной плашке, чуть толще, чтобы читался в 16–32 px
-FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -12 224 224'%3E%3Crect x='-12' y='-12' width='224' height='224' rx='48' fill='%230D3C55'/%3E%3Cdefs%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='30' y1='170' x2='170' y2='30'%3E%3Cstop offset='0' stop-color='%23fff'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='.28'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect x='-12' y='-12' width='224' height='224' fill='%23fff'/%3E%3Cpath d='M152.9 81.0L191.2 48.9' fill='none' stroke='%23000' stroke-width='34' stroke-linecap='round'/%3E%3C/mask%3E%3C/defs%3E%3Cg mask='url(%23m)'%3E%3Ccircle cx='100' cy='100' r='80' fill='none' stroke='url(%23g)' stroke-width='15' transform='rotate(-25.9 100 100)'/%3E%3C/g%3E%3Cpath d='M36.6 87.0L80.0 142.0L202.7 39.3' fill='none' stroke='%23fff' stroke-width='16' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E"
+# Фавиконки лежат файлами в assets-sverka/_root/ (favicon.svg/.ico, favicon-120.png, apple-touch-icon.png): темный знак
+# на белой плашке, как у старого сайта, чтобы читались в поиске Яндекса. Сборка копирует _root/ в корень сайта.
 
 
 # ---------- каркас ----------
@@ -146,20 +146,23 @@ def base(ctx, page, body, tone="light", pre=""):
     robots = ('<meta name="robots" content="noindex, nofollow">\n' if ctx["noindex"]
               else '<meta name="robots" content="noindex, follow">\n' if page.get("noindex") else "")
     return (
-        '<!doctype html>\n<html lang="ru">\n<head>\n<meta charset="utf-8">\n'
+        '<!doctype html>\n<html lang="ru" data-tone="%s">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n%s'
         '<title>%s</title>\n<meta name="description" content="%s">\n<link rel="canonical" href="%s">\n'
         '<meta property="og:type" content="%s">\n<meta property="og:title" content="%s">\n<meta property="og:description" content="%s">\n'
         '<meta property="og:url" content="%s">\n<meta property="og:image" content="%s">\n<meta property="og:locale" content="ru_RU">\n<meta property="og:site_name" content="Инком-Аудит">\n'
-        '<meta name="theme-color" content="#0D3C55">\n<link rel="icon" href="%s">\n'
-        '%s<link rel="stylesheet" href="/assets/sverka.css">\n%s%s'
+        '<meta name="theme-color" content="%s">\n'
+        # иконки: ico для старых браузеров и Яндекса, svg для современных, png 120 для Яндекса, apple-touch для iOS
+        '<link rel="icon" href="/favicon.ico" sizes="32x32">\n<link rel="icon" type="image/svg+xml" href="/favicon.svg">\n'
+        '<link rel="icon" type="image/png" sizes="120x120" href="/favicon-120.png">\n<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n'
+        '%s<link rel="stylesheet" href="/assets/sverka.css?v=%s">\n%s%s'
         '<!-- Яндекс.Вебмастер: <meta name="yandex-verification" content="…"> -->\n'
         '<!-- Яндекс.Метрика: вставить код счётчика перед </head> -->\n'
         '</head>\n<body>\n<a class="skip" href="#main">Перейти к содержимому</a>\n%s<main id="main">\n%s</main>\n%s%s%s'
-        '<script src="/assets/sverka.js" defer></script>\n</body>\n</html>\n'
-        % (robots, esc(page["title"]), esc(page["description"]), url, "article" if page["kind"] == "article" else "website",
-           esc(page.get("og_title") or page["h1"]), esc(page["description"]), url, og_img, FAVICON, FONT_HEAD, pre,
-           head_jsonld(ctx, page), header(page, tone), body, footer(), mbar(), modal(page)))
+        '<script src="/assets/sverka.js?v=%s" defer></script>\n</body>\n</html>\n'
+        % (tone, robots, esc(page["title"]), esc(page["description"]), url, "article" if page["kind"] == "article" else "website",
+           esc(page.get("og_title") or page["h1"]), esc(page["description"]), url, og_img, "#0D3C55" if tone == "dark" else "#EEF2F4", FONT_HEAD, ctx.get("asset_v", "1"), pre,
+           head_jsonld(ctx, page), header(page, tone), body, footer(), mbar(), modal(page), ctx.get("asset_v", "1")))
 
 
 # ---------- общие блоки ----------

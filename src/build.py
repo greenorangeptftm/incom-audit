@@ -297,6 +297,8 @@ def build(theme, out, site_url, photos_dir, noindex):
     assets_src = SRC / ("assets" if theme == "pechat" else "assets-" + theme)
     standalone = theme != "pechat"   # отдельный сайт: фото и логотипы лежат внутри out/assets/
 
+    import hashlib
+    asset_v = hashlib.md5(b"".join((assets_src / n).read_bytes() for n in ("sverka.css", "sverka.js") if (assets_src / n).exists())).hexdigest()[:8]
     photos = load_photos(photos_dir)
     pages, errors = load_pages()
     today = datetime.date.today().isoformat()
@@ -312,6 +314,11 @@ def build(theme, out, site_url, photos_dir, noindex):
             shutil.copytree(f, out / "assets" / f.name, dirs_exist_ok=True)
         elif f.is_file():
             shutil.copy2(f, out / "assets" / f.name)
+    root_src = assets_src / "_root"          # фавиконки и прочее, что должно лежать в корне сайта
+    if root_src.is_dir():
+        for f in root_src.iterdir():
+            if f.is_file():
+                shutil.copy2(f, out / f.name)
 
     defs_path = assets_src / "_defs.svg"
     defs_svg = defs_path.read_text(encoding="utf-8") if defs_path.exists() else ""
@@ -325,7 +332,7 @@ def build(theme, out, site_url, photos_dir, noindex):
     warns, used_photos = [], set()
     for page in pages:
         root = rel_root(page["path"])
-        ctx = dict(site_url=site_url, assets_url=assets_url, noindex=noindex, root=root, theme=theme,
+        ctx = dict(site_url=site_url, assets_url=assets_url, asset_v=asset_v, noindex=noindex, root=root, theme=theme,
                    photo_prefix=root + photo_rel, photos=photos, pages=pages, by_path=by_path,
                    articles=articles, today=today, defs=defs_svg)
         for key in (page.get("photo"),) + tuple(s.get("photo") for s in page.get("sections") or [] if isinstance(s, dict)):
@@ -362,7 +369,7 @@ def build(theme, out, site_url, photos_dir, noindex):
 
     # 404 (если тема умеет)
     if hasattr(templates, "render_404"):
-        ctx = dict(site_url=site_url, assets_url=assets_url, noindex=True, root="", theme=theme,
+        ctx = dict(site_url=site_url, assets_url=assets_url, asset_v=asset_v, noindex=True, root="", theme=theme,
                    photo_prefix=photo_rel, photos=photos, pages=pages, by_path=by_path, articles=articles, today=today, defs=defs_svg)
         html = rewrite_links(templates.render_404(ctx), "")
         if theme == "sverka":

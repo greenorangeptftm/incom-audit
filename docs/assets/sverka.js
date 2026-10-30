@@ -246,15 +246,17 @@
     tocLinks.forEach(function (a, i) { a.classList.toggle('is-on', i === cur); });
   }
 
-  /* ——— нижняя панель на телефонах: прячется у формы и подвала ——— */
+  /* ——— нижняя панель на телефонах: прячется у формы, подвала и пока на экране кнопки первого экрана
+     (иначе «Позвонить / Заявка» дублируют кнопки hero). Состояние храним по каждому элементу, а не счётчиком:
+     при загрузке часть элементов уже на экране, часть нет, и счётчик уходил в минус ——— */
   var mbar = q('#mbar');
   if (mbar && hasIO) {
-    var covered = 0;
+    var mWatch = qa('#zayavka, .ftr, .hero-cta, .phero-cta');
     var mIO = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { covered += e.isIntersecting ? 1 : -1; });
-      covered = Math.max(0, covered); mbar.classList.toggle('is-hidden', covered > 0);
+      es.forEach(function (e) { e.target._mbOn = e.isIntersecting; });
+      mbar.classList.toggle('is-hidden', Array.prototype.some.call(mWatch, function (el) { return el._mbOn; }));
     }, { threshold: 0.05 });
-    qa('#zayavka, .ftr').forEach(function (el) { mIO.observe(el); });
+    Array.prototype.forEach.call(mWatch, function (el) { mIO.observe(el); });
   }
 
   /* ——— один цикл прокрутки на все наблюдатели ——— */
