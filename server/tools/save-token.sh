@@ -2,6 +2,13 @@
 # Безопасно сохраняет секрет в ~/.config/incom-audit/secrets.env (права 600, вне репозитория).
 # Использование: sh server/tools/save-token.sh [ИМЯ_ПЕРЕМЕННОЙ]   (по умолчанию TELEGRAM_BOT_TOKEN)
 KEY="${1:-TELEGRAM_BOT_TOKEN}"
+# Первый аргумент — ИМЯ переменной (например TELEGRAM_BOT_TOKEN), само значение вводится ниже скрыто.
+# Если сюда по ошибке передали сам токен, он уже попал в историю команд: такой токен надо перевыпустить у @BotFather.
+case "$KEY" in
+  [A-Z_]*) ;;
+  *) echo "Ошибка: аргумент должен быть именем переменной (TELEGRAM_BOT_TOKEN), а не значением. Запустите без аргументов"; exit 1 ;;
+esac
+case "$KEY" in *[!A-Z0-9_]*) echo "Ошибка: аргумент должен быть именем переменной (TELEGRAM_BOT_TOKEN), а не значением. Запустите без аргументов"; exit 1 ;; esac
 DIR="$HOME/.config/incom-audit"; FILE="$DIR/secrets.env"
 mkdir -p "$DIR" && chmod 700 "$DIR"
 printf 'Вставьте значение %s и нажмите Enter (ввод скрыт): ' "$KEY"
